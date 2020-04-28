@@ -4,13 +4,20 @@
 	position: fixed;
 	top: 0;
 	left: 0;
+	background-color: $white;
 
 	&__spacer {
 		height: 72px;
 	}
 
-	&__logo {
-		width: 170px;
-		height: 50px;
+	&__container {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		&__logo {
+			color: $orange;
+			line-height: 72px;
+		}
 	}
 }

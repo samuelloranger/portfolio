@@ -3,6 +3,7 @@ html {
 }
 body {
 	@include fontSize(14px);
+	@include primaryFont;
 }
 
 h1,
@@ -32,6 +33,8 @@ label,
 input,
 h4,
 h5,
+button,
+input,
 h6 {
 	@include fontSize(16px);
 	@include primaryFont;
@@ -56,13 +59,13 @@ h1,
 
 h2,
 .h2 {
-	@include fontSize(22px);
+	@include fontSize(32px);
 	@include primaryFont-bold;
 }
 
 h3,
 .h3 {
-	@include fontSize(20px);
+	@include fontSize(25px);
 	@include primaryFont-bold;
 }
 
@@ -80,12 +83,12 @@ h4,
 
 	h2,
 	.h2 {
-		@include fontSize(25px);
+		@include fontSize(32px);
 	}
 
 	h3,
 	.h3 {
-		@include fontSize(20px);
+		@include fontSize(25px);
 	}
 
 	h4,

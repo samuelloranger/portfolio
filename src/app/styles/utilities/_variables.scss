@@ -1,5 +1,5 @@
 //Fonts
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Pacifico&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Heebo:wght@900&display=swap');
 
 //Primary Font
 @mixin primaryFont {
@@ -25,8 +25,8 @@
 
 //Secondary Font
 @mixin secondaryFont {
-	font-family: 'Pacifico', cursive;
-	font-weight: 400;
+	font-family: 'Heebo', cursive;
+	font-weight: 900;
 	font-display: swap;
 }
 

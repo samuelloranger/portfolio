@@ -1,3 +1,18 @@
 .btn {
 	display: block;
+	color: white;
+	padding: 0 25px;
+	background-color: $blue;
+	border-radius: 8px;
+	height: 35px;
+	@include fontSize(16px);
+	@include primaryFont-semibold;
+	border: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	&:focus {
+		outline: none;
+	}
 }

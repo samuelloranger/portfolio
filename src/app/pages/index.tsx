@@ -1,14 +1,32 @@
 import React from 'react'
 
 //Components
-import { Header } from '../components/'
+import Main from '../layouts/Main'
 
 const index = () => {
 	return (
-		<div>
-			<Header />
-			<h1>Créez un portfolio simple, mais efficace</h1>
-		</div>
+		<Main>
+			<main className='home container'>
+				<h2 className='home__title h1'>Créez un portfolio simple, mais efficace</h2>
+
+				<div className='home__hero'>
+					<div className='home__hero__item'>
+						<img src='/icons/register.svg' alt='' />
+						<h3>Enregistrez-vous</h3>
+					</div>
+
+					<div className='home__hero__item'>
+						<img src='/icons/sketch.svg' alt='' />
+						<h3>Créez un compte</h3>
+					</div>
+
+					<div className='home__hero__item'>
+						<img src='/icons/share.svg' alt='' />
+						<h3>Partagez-le</h3>
+					</div>
+				</div>
+			</main>
+		</Main>
 	)
 }
 
