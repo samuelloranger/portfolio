@@ -2,7 +2,7 @@ import * as firebase from 'firebase'
 import 'firebase/firestore'
 
 const firebaseConfig = {
-	apiKey: 'AIzaSyAd8ZceCxCWtGT8frxXc9BVpeCKpUIpu6w',
+	apiKey: process.env.FIRESTORE_KEY,
 	authDomain: 'portfolio-7fd42.firebaseapp.com',
 	databaseURL: 'https://portfolio-7fd42.firebaseio.com',
 	projectId: 'portfolio-7fd42',
