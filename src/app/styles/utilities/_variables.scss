@@ -1,0 +1,46 @@
+//Fonts
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Pacifico&display=swap');
+
+//Primary Font
+@mixin primaryFont {
+	font-family: 'Montserrat', sans-serif;
+	font-weight: 400;
+	font-display: swap;
+}
+
+@mixin primaryFont-medium {
+	@include primaryFont;
+	font-weight: 500;
+}
+
+@mixin primaryFont-semibold {
+	@include primaryFont;
+	font-weight: 600;
+}
+
+@mixin primaryFont-bold {
+	@include primaryFont;
+	font-weight: 700;
+}
+
+//Secondary Font
+@mixin secondaryFont {
+	font-family: 'Pacifico', cursive;
+	font-weight: 400;
+	font-display: swap;
+}
+
+//Colors
+$white: #fff;
+$black: #000;
+$blue: #1a73e8;
+$ref: #ff0000;
+$orange: #f7931e;
+$darkGray: #737373;
+$lightGray: #afafaf;
+
+//Media querys
+$small: 576px;
+$medium: 768px;
+$desktop: 992px;
+$large: 1200px;
