@@ -1,0 +1,37 @@
+/**
+ * Margin et padding
+ */
+// Ajuster pour avoir les classes/padding que vous désirez
+$spaceamounts: (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 150);
+$sides: (top, bottom, left, right);
+
+@each $space in $spaceamounts {
+	@each $side in $sides {
+		.m#{str-slice($side, 0, 1)}-#{$space} {
+			margin-#{$side}: #{$space}px;
+		}
+
+		.p#{str-slice($side, 0, 1)}-#{$space} {
+			padding-#{$side}: #{$space}px;
+		}
+	}
+
+	.m-#{$space} {
+		margin: #{$space}px;
+	}
+
+	.p-#{$space} {
+		padding: #{$space}px;
+	}
+}
+
+/**
+ * Text directions
+ */
+$textdirections: (left, center, right);
+
+@each $direction in $textdirections {
+	.text-#{$direction} {
+		text-align: #{$direction};
+	}
+}

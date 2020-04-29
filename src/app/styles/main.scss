@@ -3,14 +3,17 @@
 /**** Utilitaires ****/
 @import "utilities/variables";
 @import "utilities/mixins";
+@import "utilities/helper";
 
 /****** Base ******/
 @import "base/buttons";
 @import "base/general";
 @import "base/typo";
+@import "base/input";
 
 /****** Components ******/
 @import "components/header";
 
 /****** Pages ******/
 @import "pages/home";
+@import "pages/register";

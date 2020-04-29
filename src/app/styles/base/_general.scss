@@ -7,6 +7,7 @@ body {
 	overflow-x: hidden;
 	position: relative;
 	margin: 0;
+	height: 100vh;
 }
 
 .no-scroll {
@@ -17,6 +18,10 @@ body {
 
 .shadow {
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+}
+
+.border-radius {
+	border-radius: 8px;
 }
 
 .container {

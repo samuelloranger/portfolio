@@ -4,12 +4,12 @@ interface IProps {
 	readonly label: string
 	readonly className?: string
 	readonly type?: 'button' | 'submit' | 'reset'
-	readonly action: (e: any) => any
+	readonly action?: () => void
 }
 
 const Button = ({ label, className, type = 'button', action }: IProps) => {
 	return (
-		<button className={`btn${className ? ' ' + className : ''}`} type={type} onClick={() => action}>
+		<button className={`btn${className ? ' ' + className : ''}`} type={type} onClick={action}>
 			{label}
 		</button>
 	)

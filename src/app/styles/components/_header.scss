@@ -17,7 +17,35 @@
 
 		&__logo {
 			color: $orange;
+			@include fontSize(42px);
 			line-height: 72px;
+
+			&Link {
+				&:hover {
+					text-decoration: none;
+				}
+			}
+		}
+
+		&__nav {
+			display: flex;
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+
+			.item {
+				display: flex;
+				align-items: center;
+				margin-right: 25px;
+
+				a {
+					@include primaryFont-semibold;
+				}
+
+				&:last-child {
+					margin-right: 0;
+				}
+			}
 		}
 	}
 }

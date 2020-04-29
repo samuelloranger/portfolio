@@ -1,0 +1,17 @@
+.register {
+	padding-top: 25px;
+
+	h1 {
+		text-align: center;
+		color: $orange;
+	}
+
+	&__container {
+		width: 550px;
+
+		&__input {
+			display: flex;
+			flex-direction: column;
+		}
+	}
+}

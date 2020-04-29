@@ -1,0 +1,26 @@
+.inputField {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+
+	&__eye {
+		position: absolute;
+		width: 22px;
+		height: 22px;
+		right: 15px;
+		right: 36px;
+		top: 52px;
+	}
+
+	input {
+		border-radius: 8px;
+		border: 1px solid $lightGray;
+		height: 35px;
+		padding-left: 12px;
+
+		&::-ms-reveal,
+		&::-ms-clear {
+			display: none;
+		}
+	}
+}
