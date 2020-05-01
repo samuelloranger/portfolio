@@ -42,7 +42,8 @@ h6 {
 
 a,
 li a,
-p a {
+p a,
+.a {
 	text-decoration: none;
 	color: $blue;
 
@@ -53,7 +54,7 @@ p a {
 
 h1,
 .h1 {
-	@include fontSize(60px);
+	@include fontSize(50px);
 	@include secondaryFont;
 }
 

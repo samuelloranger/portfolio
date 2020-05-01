@@ -1,14 +1,31 @@
-import React, { ChangeEvent, useState, useEffect } from 'react'
+import React, { ChangeEvent, useState, useEffect, Fragment } from 'react'
 
 //Next
-import Router from 'next/router'
+import Link from 'next/link'
 
 //Component
-import { Input, Button } from '../components'
+import { Input, Button, Loader } from '../components'
 import { loginUser } from '../services/firebase'
 
+//Icones
+import GoogleIcon from '../constants/Icones/GoogleIcon'
+import FacebookIcon from '../constants/Icones/FacebookIcon'
+
+const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
 const LoginPageComponent = () => {
+	const [ loading, setLoading ] = useState<boolean>(false)
 	const [ user, setUser ] = useState({ email: '', password: '' })
+	const [ errors, setErrors ] = useState({
+		email: {
+			value: false,
+			error_message: ''
+		},
+		account: {
+			value: false,
+			error_message: ''
+		}
+	})
 	const [ rememberMe, setRememberMe ] = useState<boolean>(false)
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -20,30 +37,115 @@ const LoginPageComponent = () => {
 		}))
 	}
 
-	useEffect(
-		() => {
-			console.log(rememberMe)
-		},
-		[ rememberMe ]
-	)
+	const validateEmail = () => {
+		if (user.email === '') {
+			setErrors((prevState: any) => ({
+				...prevState,
+				email: {
+					...prevState.email,
+					value: true,
+					error_message: 'Vous devez entrer un courriel.'
+				}
+			}))
 
-	const handleRememberMe = () => {
-		setRememberMe(!rememberMe)
+			return false
+		}
+
+		const testRegex = new RegExp(EMAIL_REGEX).test(user.email)
+		if (!testRegex) {
+			setErrors((prevState: any) => ({
+				...prevState,
+				email: {
+					...prevState.email,
+					value: true,
+					error_message: 'Vous devez entrer un courriel valide.'
+				}
+			}))
+
+			return false
+		}
+
+		setErrors((prevState: any) => ({
+			...prevState,
+			email: {
+				...prevState.email,
+				value: false,
+				error_message: ''
+			}
+		}))
+
+		return true
 	}
 
 	const handleSubmit = async () => {
-		let persistance: any = rememberMe ? 'local' : 'none'
-		await loginUser(user.email, user.password, persistance)
+		setLoading(true)
+		if (validateEmail()) {
+			let persistance: any = rememberMe ? 'local' : 'none'
+			const login = await loginUser(user.email, user.password, persistance)
+
+			if (login === true) {
+				setLoading(false)
+				return
+			}
+
+			if (!!!(login as any).code) {
+				setErrors((prevState: any) => ({
+					...prevState,
+					account: {
+						...prevState.email,
+						value: true,
+						error_message: 'Vous devez fournir un mot de passe.'
+					}
+				}))
+			}
+
+			if (!login) {
+				setErrors((prevState: any) => ({
+					...prevState,
+					account: {
+						...prevState.email,
+						value: true,
+						error_message: 'Courriel ou mot de passe incorrect.'
+					}
+				}))
+			}
+			setLoading(false)
+			return
+		}
 	}
 
 	return (
 		<div className='register container'>
 			<h1>Se connecter</h1>
 
-			<div className='register__container container shadow border-radius '>
-				<Input label='Courriel' name='email' onChange={handleChange} />
+			<form className='register__container container shadow border-radius '>
+				<div className='register__container__btnSocial'>
+					<Button className='btn--google'>
+						<Fragment>
+							<GoogleIcon />
+							Se connecter
+						</Fragment>
+					</Button>
+					<Button className='btn--facebook'>
+						<Fragment>
+							<FacebookIcon />
+							Se connecter
+						</Fragment>
+					</Button>
+				</div>
+
+				<Input
+					label='Courriel'
+					name='email'
+					error={errors.email.value ? <span className='error'>{errors.email.error_message}</span> : null}
+					onChange={handleChange}
+				/>
 
 				<Input label='Password' name='password' type='password' onChange={handleChange} />
+
+				{errors.account.value ? (
+					<span className='error error--account'>{errors.account.error_message}</span>
+				) : null}
 
 				<Input
 					label='Se souvenir de moi'
@@ -51,13 +153,16 @@ const LoginPageComponent = () => {
 					type='checkbox'
 					className='pl-25 pt-25'
 					defaultChecked={true}
-					onChange={handleRememberMe}
+					onChange={() => setRememberMe(!rememberMe)}
 				/>
 
-				<div className='p-25'>
-					<Button label='Se connecter' action={handleSubmit} />
+				<div className='register__container__btns p-25'>
+					<Button action={handleSubmit}>{loading ? <Loader /> : 'Se connecter'}</Button>
+					<Link href='/register'>
+						<a>S'enregistrer</a>
+					</Link>
 				</div>
-			</div>
+			</form>
 		</div>
 	)
 }

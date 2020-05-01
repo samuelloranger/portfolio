@@ -9,7 +9,12 @@
 		height: 22px;
 		right: 15px;
 		right: 36px;
-		top: 52px;
+		bottom: 8px;
+	}
+
+	label {
+		margin-bottom: 8px;
+		@include primaryFont-semibold;
 	}
 
 	input {

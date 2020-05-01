@@ -6,10 +6,12 @@ interface IProps {
 	readonly className?: string
 	readonly type?: string
 	readonly defaultChecked?: boolean
+	readonly pattern?: string
+	readonly error?: JSX.Element | null
 	readonly onChange: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
-const Input = ({ label, className, name, onChange, defaultChecked, type = 'text' }: IProps) => {
+const Input = ({ label, className, name, onChange, error, defaultChecked, pattern, type = 'text' }: IProps) => {
 	const [ showPw, setShowPw ] = useState(false)
 
 	if (type === 'checkbox') {
@@ -35,9 +37,12 @@ const Input = ({ label, className, name, onChange, defaultChecked, type = 'text'
 					onClick={() => setShowPw(!showPw)}
 				/>
 			) : null}
+			{error}
 			<input
 				name={name}
 				id={name}
+				pattern={pattern ? pattern : ''}
+				autoComplete={type === 'password' ? 'current-password' : 'on'}
 				type={type === 'password' ? !showPw ? 'password' : 'text' : type}
 				onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e)}
 			/>

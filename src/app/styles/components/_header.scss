@@ -5,6 +5,17 @@
 	top: 0;
 	left: 0;
 	background-color: $white;
+	transition: 0.15s ease-in-out;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+	z-index: 9999;
+
+	&--active {
+		box-shadow: 0 -10px 4px rgba(0, 0, 0, 0.16);
+
+		@include tablet {
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+		}
+	}
 
 	&__spacer {
 		height: 72px;
@@ -14,10 +25,16 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		padding: 0 15px;
+		position: relative;
 
 		&__logo {
 			color: $orange;
-			@include fontSize(42px);
+			@include fontSize(36px);
+
+			@media (min-width: 375px) {
+				@include fontSize(42px);
+			}
 			line-height: 72px;
 
 			&Link {
@@ -32,11 +49,40 @@
 			list-style-type: none;
 			margin: 0;
 			padding: 0;
+			background-color: white;
+			position: absolute;
+			width: 100%;
+			right: -120vw;
+			top: 100%;
+			padding: 50px 25px 25px 25px;
+			transition: 0.25s ease-in-out;
+			align-items: flex-end;
+			flex-direction: column;
+			box-shadow: 0 3.5px 4px rgba(0, 0, 0, 0.16);
+			background-color: white;
+
+			&--active {
+				right: 0;
+			}
+
+			@include tablet {
+				width: unset;
+				position: unset;
+				padding: 0;
+				flex-direction: row;
+				align-items: center;
+				box-shadow: unset;
+			}
 
 			.item {
 				display: flex;
 				align-items: center;
 				margin-right: 25px;
+				margin-bottom: 25px;
+
+				@include tablet {
+					margin-bottom: 0;
+				}
 
 				a {
 					@include primaryFont-semibold;
@@ -46,6 +92,16 @@
 					margin-right: 0;
 				}
 			}
+		}
+	}
+
+	.hamburger {
+		@include tablet {
+			display: none;
+		}
+
+		&:focus {
+			outline: none;
 		}
 	}
 }

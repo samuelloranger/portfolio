@@ -13,6 +13,7 @@ import { logout, userAuthStateListener } from '../services/firebase'
 const Header = () => {
 	const { userSnapshot } = useContext(UserAuthContext)
 	const [ userConnected, setUserConnected ] = useState<boolean>(false)
+	const [ state, setState ] = useState({ menuActive: false })
 
 	useEffect(
 		() => {
@@ -37,7 +38,7 @@ const Header = () => {
 	return (
 		<Fragment>
 			<div className='header__spacer' />
-			<header className='header shadow'>
+			<header className={`header${state.menuActive ? ' header--active' : ''}`}>
 				<div className='header__container container'>
 					<Link href='/'>
 						<a className='header__container__logoLink'>
@@ -45,35 +46,50 @@ const Header = () => {
 						</a>
 					</Link>
 
-					{userConnected ? (
-						<ul className='header__container__nav'>
-							<li className='item'>
-								<p onClick={handleDisconnect}>Se déconnecter</p>
-							</li>
-							<li className='item'>
-								<Link href='/dashboard'>
-									<a>
-										<Button label='Dashboard' />
-									</a>
-								</Link>
-							</li>
-						</ul>
-					) : (
-						<ul className='header__container__nav'>
-							<li className='item'>
-								<Link href='/login'>
-									<a>Connexion</a>
-								</Link>
-							</li>
-							<li className='item'>
-								<Link href='/register'>
-									<a>
-										<Button label='S&#39;enregistrer' />
-									</a>
-								</Link>
-							</li>
-						</ul>
-					)}
+					<ul
+						className={`header__container__nav${state.menuActive
+							? ` header__container__nav--active`
+							: ''}`}>
+						{userConnected ? (
+							<Fragment>
+								<li className='item'>
+									<p className='a' onClick={handleDisconnect}>
+										Se déconnecter
+									</p>
+								</li>
+								<li className='item'>
+									<Link href='/dashboard'>
+										<a>
+											<Button>Dashboard</Button>
+										</a>
+									</Link>
+								</li>
+							</Fragment>
+						) : (
+							<Fragment>
+								<li className='item'>
+									<Link href='/login'>
+										<a>Connexion</a>
+									</Link>
+								</li>
+								<li className='item'>
+									<Link href='/register'>
+										<a>
+											<Button>S'enregistrer</Button>
+										</a>
+									</Link>
+								</li>
+							</Fragment>
+						)}
+					</ul>
+					<button
+						className={`hamburger hamburger--slider${state.menuActive ? ' is-active' : ''}`}
+						type='button'
+						onClick={() => setState((prevState) => ({ ...prevState, menuActive: !state.menuActive }))}>
+						<span className='hamburger-box'>
+							<span className='hamburger-inner' />
+						</span>
+					</button>
 				</div>
 			</header>
 		</Fragment>

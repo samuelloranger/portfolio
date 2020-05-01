@@ -1,16 +1,16 @@
 import React from 'react'
 
 interface IProps {
-	readonly label: string
+	readonly children: string | JSX.Element
 	readonly className?: string
 	readonly type?: 'button' | 'submit' | 'reset'
 	readonly action?: () => void
 }
 
-const Button = ({ label, className, type = 'button', action }: IProps) => {
+const Button = ({ children, className, type = 'button', action }: IProps) => {
 	return (
 		<button className={`btn${className ? ' ' + className : ''}`} type={type} onClick={action}>
-			{label}
+			{children}
 		</button>
 	)
 }

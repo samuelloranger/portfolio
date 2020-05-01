@@ -1,4 +1,7 @@
 /****** Librairies ******/
+$hamburger-layer-color: #1a73e8;
+$hamburger-hover-opacity: 1;
+@import "../../../node_modules/hamburgers/_sass/hamburgers/hamburgers.scss";
 
 /**** Utilitaires ****/
 @import "utilities/variables";

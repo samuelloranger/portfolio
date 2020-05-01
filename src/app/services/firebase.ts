@@ -2,6 +2,7 @@ import * as firebase from 'firebase'
 import 'firebase/firestore'
 import IUser from '../constants/Interfaces/IUser'
 import { getProfileDocument } from '../constants/firestorePath'
+import { getUserSnapshot } from '../contexts/UserAuthContext/services'
 
 const firebaseConfig = {
 	apiKey: process.env.FIRESTORE_KEY,
@@ -48,6 +49,57 @@ export const loginUser = async (
 	} catch (_err) {
 		return false
 	}
+}
+
+export const loginWithSocial = async (type: string): Promise<string | boolean> => {
+	let provider = new firebase.auth.GoogleAuthProvider()
+
+	if (type === 'facebook') {
+		provider = new firebase.auth.FacebookAuthProvider()
+	}
+
+	let login
+	try {
+		login = await firebase.auth().signInWithPopup(provider)
+	} catch (err) {
+		return err.code
+	}
+
+	if (!!!login.user) {
+		return false
+	}
+
+	const profile = await getUserSnapshot(login.user.email as string)
+
+	if (!profile.exists) {
+		if (!!!login.additionalUserInfo) {
+			return false
+		}
+
+		if (!!!login.additionalUserInfo.profile) {
+			return false
+		}
+
+		if (type === 'google') {
+			const googleProfile = login.additionalUserInfo.profile
+
+			await appFirestore().doc(getProfileDocument(login.user.email as string)).set({
+				name: googleProfile.given_name,
+				family_name: googleProfile.family_name,
+				email: googleProfile.email,
+				picture: googleProfile.picture
+			})
+		} else {
+			const facebookProfile = login.additionalUserInfo.profile
+
+			await appFirestore().doc(getProfileDocument(login.user.email as string)).set({
+				name: facebookProfile.first_name,
+				family_name: facebookProfile.last_name,
+				email: facebookProfile.email,
+				picture: facebookProfile.picture.data.url
+			})
+		}
+	} else return true
 }
 
 /**

@@ -12,6 +12,56 @@
 	justify-content: center;
 	align-items: center;
 	cursor: pointer;
+	min-width: 145px;
+
+	&--white {
+		color: black;
+		background-color: white;
+	}
+
+	&--google {
+		background-color: white;
+		color: black;
+		@extend .shadow;
+		width: 200px;
+		transition: 0.15s ease-in-out;
+
+		svg {
+			width: 18px;
+			height: 18px;
+			margin-right: 8px;
+		}
+
+		&:hover {
+			background-color: $blue;
+			color: white;
+		}
+	}
+
+	&--facebook {
+		background-color: $facebook;
+		@extend .shadow;
+		width: 200px;
+		border: $facebook;
+		transition: 0.15s ease-in-out;
+
+		svg {
+			width: 18px;
+			height: 18px;
+			margin-right: 8px;
+			fill: white;
+			transition: 0.15s ease-in-out;
+		}
+
+		&:hover {
+			color: black;
+			background-color: transparent;
+
+			svg {
+				fill: $facebook;
+			}
+		}
+	}
 
 	&:focus {
 		outline: none;
