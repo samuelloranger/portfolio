@@ -9,8 +9,10 @@ import UserAuthContext from '../contexts/UserAuthContext/UserAuthContext'
 
 //Firebase
 import { logout, userAuthStateListener } from '../services/firebase'
+import useWindowSize from '../constants/Hooks/useWindow'
 
 const Header = () => {
+	const { width } = useWindowSize()
 	const { userSnapshot } = useContext(UserAuthContext)
 	const [ userConnected, setUserConnected ] = useState<boolean>(false)
 	const [ state, setState ] = useState({ menuActive: false })
@@ -53,10 +55,35 @@ const Header = () => {
 						{userConnected ? (
 							<Fragment>
 								<li className='item'>
-									<p className='a' onClick={handleDisconnect}>
+									<p className='a itemLink m-0' onClick={handleDisconnect}>
 										Se déconnecter
 									</p>
 								</li>
+								{width < 768 ? (
+									<Fragment>
+										<li className='item'>
+											<Link href='/dashboard'>
+												<a className='itemLink' href=''>
+													Mon profil
+												</a>
+											</Link>
+										</li>
+										<li className='item'>
+											<Link href='/dashboard/projects'>
+												<a className='itemLink' href=''>
+													Mes projets
+												</a>
+											</Link>
+										</li>
+										<li className='item'>
+											<Link href='/dashboard/'>
+												<a className='itemLink' href=''>
+													Mes compétences
+												</a>
+											</Link>
+										</li>
+									</Fragment>
+								) : null}
 								<li className='item'>
 									<Link href='/dashboard'>
 										<a>

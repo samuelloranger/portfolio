@@ -52,6 +52,7 @@ export const loginUser = async (
 }
 
 export const loginWithSocial = async (type: string): Promise<string | boolean> => {
+	firebase.auth().languageCode = 'fr'
 	let provider = new firebase.auth.GoogleAuthProvider()
 
 	if (type === 'facebook') {
@@ -60,7 +61,11 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 
 	let login
 	try {
-		login = await firebase.auth().signInWithPopup(provider)
+		if (type === 'google') {
+			login = await firebase.auth().signInWithPopup(provider)
+		} else {
+			login = await firebase.auth().signInWithRedirect(provider)
+		}
 	} catch (err) {
 		return err.code
 	}

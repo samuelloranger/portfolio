@@ -1,0 +1,49 @@
+.dashboard {
+	&__sidebar {
+		display: none;
+		position: fixed;
+		width: 245px;
+		height: 100vh;
+		background-color: $blue;
+
+		@include tablet {
+			display: block;
+		}
+
+		&__nav {
+			list-style-type: none;
+			margin-top: 35px;
+			padding-left: 35px;
+
+			.item {
+				&Link {
+					color: white;
+					// @include primaryFont-semibold;
+					display: flex;
+					align-items: center;
+					margin-bottom: 20px;
+
+					&--active {
+						@include primaryFont-bold;
+					}
+
+					img {
+						width: 32px;
+						height: 32px;
+						margin-right: 8px;
+					}
+				}
+			}
+		}
+	}
+
+	&__content {
+		@include tablet {
+			margin-left: 275px;
+		}
+
+		@media (min-width: 1750px) {
+			margin-left: 0;
+		}
+	}
+}

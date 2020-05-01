@@ -40,7 +40,9 @@ const Register = () => {
 
 	const registerWithSocial = async (social: string) => {
 		const register = await loginWithSocial(social)
-		console.log(register)
+		if (register === true) {
+			Router.push('/')
+		}
 	}
 
 	return (

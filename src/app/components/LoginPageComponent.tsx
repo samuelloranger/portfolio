@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 //Component
 import { Input, Button, Loader } from '../components'
-import { loginUser } from '../services/firebase'
+import { loginUser, loginWithSocial } from '../services/firebase'
 
 //Icones
 import GoogleIcon from '../constants/Icones/GoogleIcon'
@@ -83,6 +83,7 @@ const LoginPageComponent = () => {
 			let persistance: any = rememberMe ? 'local' : 'none'
 			const login = await loginUser(user.email, user.password, persistance)
 
+			console.log(login)
 			if (login === true) {
 				setLoading(false)
 				return
@@ -105,7 +106,8 @@ const LoginPageComponent = () => {
 					account: {
 						...prevState.email,
 						value: true,
-						error_message: 'Courriel ou mot de passe incorrect.'
+						error_message:
+							'Courriel ou mot de passe incorrect. Essayez de vous connecter avec votre compte Google.'
 					}
 				}))
 			}
@@ -114,19 +116,23 @@ const LoginPageComponent = () => {
 		}
 	}
 
+	const loginSocial = async (social: string) => {
+		await loginWithSocial(social)
+	}
+
 	return (
 		<div className='register container'>
 			<h1>Se connecter</h1>
 
 			<form className='register__container container shadow border-radius '>
 				<div className='register__container__btnSocial'>
-					<Button className='btn--google'>
+					<Button className='btn--google' action={() => loginSocial('google')}>
 						<Fragment>
 							<GoogleIcon />
 							Se connecter
 						</Fragment>
 					</Button>
-					<Button className='btn--facebook'>
+					<Button className='btn--facebook' action={() => loginSocial('facebook')}>
 						<Fragment>
 							<FacebookIcon />
 							Se connecter
