@@ -88,6 +88,71 @@
 			border-bottom: 1px solid #dcdcdc;
 
 			h2 {
+				@include primaryFont-bold;
+			}
+
+			.actionBar {
+				display: flex;
+				justify-content: space-between;
+
+				&__left,
+				&__right {
+					display: flex;
+					align-items: center;
+
+					@include desktop {
+					}
+
+					p {
+						@include desktop {
+							margin: 0 12px 0 0;
+						}
+						@include primaryFont-semibold;
+					}
+				}
+
+				&__left {
+					display: none;
+
+					@include desktop {
+						display: flex;
+					}
+
+					p {
+						&:first-child {
+							margin-left: 36px;
+						}
+						&:last-child {
+							margin-left: 145px;
+						}
+					}
+				}
+
+				&__right {
+					align-items: flex-start;
+					flex-direction: column;
+
+					@include desktop {
+						flex-direction: row;
+						align-items: center;
+						width: auto;
+					}
+
+					&__btnWithIcon {
+						display: flex;
+						align-items: center;
+						margin: 0 0 25px 0;
+
+						img {
+							width: 18px;
+							height: 18px;
+							margin-right: 4px;
+						}
+					}
+				}
+			}
+
+			h2 {
 				@include fontSize(16px);
 				margin: 0;
 			}
@@ -214,6 +279,76 @@
 
 							&:hover {
 								text-decoration: line-through;
+							}
+						}
+					}
+				}
+			}
+
+			.itemsList {
+				display: flex;
+				flex-direction: column;
+				width: 100%;
+
+				&__item {
+					display: flex;
+					width: 100%;
+					border-bottom: 1px solid $alto;
+
+					@include desktop {
+						align-items: center;
+						padding: 10px 0;
+					}
+
+					&:last-child {
+						border-bottom: 0;
+					}
+
+					input[type=checkbox] {
+						display: none;
+					}
+
+					&__checkbox {
+						width: 16px;
+						height: 16px;
+						border-radius: 4px;
+						border: 1px solid $darkGray;
+						margin: 10px 15px 0 25px;
+						cursor: pointer;
+						transition: 0.15s ease-in-out;
+						background-image: url('/icons/check.svg');
+						background-repeat: no-repeat;
+						background-position: center;
+						background-size: 0;
+
+						&--checked {
+							background-color: $blue;
+							border: 1px solid $blue;
+							background-size: 10px;
+						}
+
+						@include desktop {
+							margin: 0px 15px 0 25px;
+						}
+					}
+
+					&__data {
+						width: 100%;
+						display: flex;
+						flex-direction: column;
+						cursor: pointer;
+
+						@include desktop {
+							flex-direction: row;
+						}
+
+						p {
+							margin: 10px 0;
+						}
+
+						.name {
+							@include desktop {
+								min-width: 245px;
 							}
 						}
 					}

@@ -18,6 +18,11 @@ const Wizard = ({ title, message, confirm, close }: IProps) => {
 		}
 	}, [])
 
+	const handleConfirm = () => {
+		confirm()
+		handleClose()
+	}
+
 	const handleClose = () => {
 		setState((prevState) => ({
 			...prevState,
@@ -38,7 +43,7 @@ const Wizard = ({ title, message, confirm, close }: IProps) => {
 					<p className='a' onClick={handleClose}>
 						Annuler
 					</p>
-					<Button action={confirm} className='btn--red'>
+					<Button action={handleConfirm} className='btn--red'>
 						<Fragment>
 							<img src='/icons/trash.svg' alt='' /> Supprimer
 						</Fragment>
