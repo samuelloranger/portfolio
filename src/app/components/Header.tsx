@@ -2,20 +2,20 @@ import React, { useEffect, useState, useContext, Fragment } from 'react'
 import Link from 'next/link'
 
 //Components
-import { Button } from './'
+import { Button, Loader } from './'
 
 //Context
 import UserAuthContext from '../contexts/UserAuthContext/UserAuthContext'
 
 //Firebase
-import { logout, userAuthStateListener } from '../services/firebase'
+import { logout, userAuthStateListener, getProfilePicture } from '../services/firebase'
 import useWindowSize from '../constants/Hooks/useWindow'
 
 const Header = () => {
 	const { width } = useWindowSize()
 	const { userSnapshot } = useContext(UserAuthContext)
-	const [ userConnected, setUserConnected ] = useState<boolean>(false)
-	const [ state, setState ] = useState({ menuActive: false })
+
+	const [ state, setState ] = useState({ loading: true, menuActive: false, userConnected: false, userPicture: '' })
 
 	useEffect(
 		() => {
@@ -26,14 +26,31 @@ const Header = () => {
 
 	const userListener = async (user: any) => {
 		if (user) {
-			setUserConnected(true)
+			setState((prevState) => ({
+				...prevState,
+				userConnected: true
+			}))
+
+			const profilePicture = await getProfilePicture()
+			setState((prevState) => ({
+				...prevState,
+				userPicture: profilePicture
+			}))
+
+			setState((prevState) => ({
+				...prevState,
+				loading: false
+			}))
 		}
 	}
 
 	const handleDisconnect = async () => {
 		const log = await logout()
 		if (log) {
-			setUserConnected(false)
+			setState((prevState) => ({
+				...prevState,
+				userConnected: false
+			}))
 		}
 	}
 
@@ -52,7 +69,7 @@ const Header = () => {
 						className={`header__container__nav${state.menuActive
 							? ` header__container__nav--active`
 							: ''}`}>
-						{userConnected ? (
+						{state.userConnected ? (
 							<Fragment>
 								<li className='item'>
 									<p className='a itemLink m-0' onClick={handleDisconnect}>
@@ -91,6 +108,17 @@ const Header = () => {
 										</a>
 									</Link>
 								</li>
+								{!state.loading ? (
+									<li className='item'>
+										<img
+											className='header__container__userPicture'
+											src={state.userPicture}
+											alt=''
+										/>
+									</li>
+								) : (
+									<Loader />
+								)}
 							</Fragment>
 						) : (
 							<Fragment>

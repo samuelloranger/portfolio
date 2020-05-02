@@ -143,11 +143,12 @@ const LoginPageComponent = () => {
 				<Input
 					label='Courriel'
 					name='email'
+					value={user.password}
 					error={errors.email.value ? <span className='error'>{errors.email.error_message}</span> : null}
 					onChange={handleChange}
 				/>
 
-				<Input label='Password' name='password' type='password' onChange={handleChange} />
+				<Input label='Password' name='password' type='password' value={user.email} onChange={handleChange} />
 
 				{errors.account.value ? (
 					<span className='error error--account'>{errors.account.error_message}</span>
@@ -157,6 +158,7 @@ const LoginPageComponent = () => {
 					label='Se souvenir de moi'
 					name='remember_me'
 					type='checkbox'
+					value={''}
 					className='pl-25 pt-25'
 					defaultChecked={true}
 					onChange={() => setRememberMe(!rememberMe)}

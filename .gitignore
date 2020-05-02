@@ -3,3 +3,5 @@ dist/
 # Firebase cache
 .firebase/
 node_modules
+
+.now

@@ -1,8 +1,8 @@
 import React from 'react'
 import Dashboard from '../../layouts/Dashboard'
 
-const index = () => {
+const skills = () => {
 	return <Dashboard />
 }
 
-export default index
+export default skills

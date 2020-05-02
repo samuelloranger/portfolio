@@ -12,6 +12,34 @@
 		bottom: 8px;
 	}
 
+	&--textarea {
+		display: flex;
+		flex-direction: column;
+		position: relative;
+
+		label {
+			margin-bottom: 8px;
+			@include primaryFont-semibold;
+		}
+
+		.charsLeft {
+			position: absolute;
+			right: 25px;
+			@include primaryFont-semibold;
+			color: $blue;
+		}
+
+		textarea {
+			resize: none;
+			height: 145px;
+			padding: 8px 0 8px 8px;
+			border-radius: 8px;
+			border: 1px solid $alto;
+			@include primaryFont;
+			@include fontSize(16px);
+		}
+	}
+
 	label {
 		margin-bottom: 8px;
 		@include primaryFont-semibold;
@@ -19,7 +47,7 @@
 
 	input {
 		border-radius: 8px;
-		border: 1px solid $lightGray;
+		border: 1px solid $alto;
 		height: 35px;
 		padding-left: 12px;
 

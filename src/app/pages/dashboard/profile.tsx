@@ -1,8 +1,8 @@
 import React from 'react'
 import Dashboard from '../../layouts/Dashboard'
 
-const index = () => {
+const profile = () => {
 	return <Dashboard />
 }
 
-export default index
+export default profile

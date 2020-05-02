@@ -2,6 +2,8 @@ import React, { useContext, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
+import { find } from 'lodash'
+
 //Layout
 import Main from './Main'
 
@@ -11,31 +13,40 @@ import { userAuthStateListener } from '../services/firebase'
 
 //Components
 import LoginPageComponent from '../components/LoginPageComponent'
+import Loader from 'react-spinners/ClipLoader'
 
-interface IProps {
-	readonly children: JSX.Element
-}
+import { Profile, Projects, Skills, Home } from '../components/dashboard'
 
-const Dashboard = ({ children }: IProps) => {
+const Dashboard = () => {
 	const router = useRouter()
+	const [ loading, setLoading ] = useState<boolean>(true)
 	const { userSnapshot } = useContext(UserAuthContext)
 	const [ userConnected, setUserConnected ] = useState<boolean>(false)
 
-	const links = [
+	const pages = [
 		{
-			url: '/dashboard',
+			url: '/dashboard/index',
+			iconName: 'home',
+			name: 'Home',
+			component: <Home />
+		},
+		{
+			url: '/dashboard/profile',
 			iconName: 'user',
-			name: 'Mon profil'
+			name: 'Mon profil',
+			component: <Profile />
 		},
 		{
 			url: '/dashboard/projects',
 			iconName: 'projects',
-			name: 'Mes projets'
+			name: 'Mes projets',
+			component: <Projects />
 		},
 		{
 			url: '/dashboard/skills',
 			iconName: 'skills',
-			name: 'Mes compétences'
+			name: 'Mes compétences',
+			component: <Skills />
 		}
 	]
 
@@ -50,6 +61,18 @@ const Dashboard = ({ children }: IProps) => {
 		if (user) {
 			setUserConnected(true)
 		}
+
+		setLoading(false)
+	}
+
+	if (loading) {
+		return (
+			<Main>
+				<div className='dashboard__loading'>
+					<Loader color='#000' size={50} />
+				</div>
+			</Main>
+		)
 	}
 
 	if (!userConnected) {
@@ -60,12 +83,21 @@ const Dashboard = ({ children }: IProps) => {
 		)
 	}
 
+	const getPage = (): JSX.Element => {
+		const currentPage = find(pages, (page) => page.url === router.pathname)
+		if (!!!currentPage) return pages[0].component
+		return currentPage.component
+	}
+
 	return (
 		<Main>
 			<div className='dashboard'>
 				<div className='dashboard__sidebar'>
 					<ul className='dashboard__sidebar__nav'>
-						{links.map((item, key) => {
+						{pages.map((item, key) => {
+							if (item.name === 'Home') {
+								return null
+							}
 							return (
 								<Link href={item.url} key={key}>
 									<a
@@ -80,7 +112,9 @@ const Dashboard = ({ children }: IProps) => {
 						<li className='item' />
 					</ul>
 				</div>
-				<div className='dashboard__content'>{children}</div>
+				<div className='dashboard__content'>
+					<div className='container'>{getPage()}</div>
+				</div>
 			</div>
 		</Main>
 	)

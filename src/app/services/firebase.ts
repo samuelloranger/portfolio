@@ -1,5 +1,6 @@
 import * as firebase from 'firebase'
 import 'firebase/firestore'
+import 'firebase/firebase-storage'
 import IUser from '../constants/Interfaces/IUser'
 import { getProfileDocument } from '../constants/firestorePath'
 import { getUserSnapshot } from '../contexts/UserAuthContext/services'
@@ -25,6 +26,10 @@ export const firebaseApp = () => {
 
 export const appFirestore = () => {
 	return firebase.app().firestore()
+}
+
+export const appStorage = () => {
+	return firebase.storage()
 }
 
 /**
@@ -87,12 +92,14 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 
 		if (type === 'google') {
 			const googleProfile = login.additionalUserInfo.profile
+			console.log(googleProfile)
 
 			await appFirestore().doc(getProfileDocument(login.user.email as string)).set({
 				name: googleProfile.given_name,
 				family_name: googleProfile.family_name,
 				email: googleProfile.email,
-				picture: googleProfile.picture
+				picture: 'google',
+				g_picture: googleProfile.picture
 			})
 		} else {
 			const facebookProfile = login.additionalUserInfo.profile
@@ -101,10 +108,28 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 				name: facebookProfile.first_name,
 				family_name: facebookProfile.last_name,
 				email: facebookProfile.email,
-				picture: facebookProfile.picture.data.url
+				picture: 'facebook',
+				f_picture: facebookProfile.picture.data.url
 			})
 		}
 	} else return true
+}
+
+export const getProfilePicture = async (email = '') => {
+	const userData = (await getUserSnapshot(email)).data()
+	const basicImg = '/img/userProfileImg.png'
+
+	switch (userData.picture) {
+		case 'google':
+			return userData.g_picture ? userData.g_picture : basicImg
+		case 'facebook':
+			return userData.f_picture ? userData.f_picture : basicImg
+		case 'custom':
+			const customPicture = await appStorage().ref(userData.c_picture).getDownloadURL()
+			return customPicture
+		case 'none':
+			return basicImg
+	}
 }
 
 /**

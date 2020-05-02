@@ -97,6 +97,13 @@
 				}
 			}
 		}
+
+		&__userPicture {
+			width: 45px;
+			height: 45px;
+			border-radius: 25px;
+			object-fit: cover;
+		}
 	}
 
 	.hamburger {

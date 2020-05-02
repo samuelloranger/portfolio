@@ -13,6 +13,11 @@
 	align-items: center;
 	cursor: pointer;
 	min-width: 145px;
+	transition: 0.15s ease-in-out;
+
+	&:hover {
+		background-color: darken($blue, 15);
+	}
 
 	&--white {
 		color: black;
