@@ -79,7 +79,7 @@ const Header = () => {
 								{width < 768 ? (
 									<Fragment>
 										<li className='item'>
-											<Link href='/dashboard'>
+											<Link href='/dashboard/profile'>
 												<a className='itemLink' href=''>
 													Mon profil
 												</a>

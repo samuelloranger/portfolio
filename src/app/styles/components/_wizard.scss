@@ -1,0 +1,76 @@
+.wizard {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	top: 0;
+	left: 0;
+	background-color: rgba(13, 13, 13, 0.45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999999;
+	animation-name: appear-wizard;
+	animation-duration: 0.50s;
+	transition: 0.5s ease-in-out;
+
+	&--closing {
+		opacity: 0;
+	}
+
+	&__container {
+		width: 445px;
+		height: 230px;
+		max-width: 90%;
+		margin: 15px 25px;
+		background-color: $white;
+		border-radius: 8px;
+		@extend .shadow;
+		padding: 25px;
+		animation-name: appear-wizard-container;
+		animation-delay: 0.25s;
+		animation-fill-mode: both;
+		animation-duration: 0.50s;
+
+		&__buttons {
+			margin-top: 45px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+
+			p {
+				margin: 0;
+				@include primaryFont-bold;
+			}
+
+			.btn {
+				img {
+					width: 18px;
+					height: 18px;
+					margin-right: 4px;
+				}
+			}
+		}
+	}
+}
+
+@keyframes appear-wizard {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes appear-wizard-container {
+	from {
+		transform: translateY(-50px);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}

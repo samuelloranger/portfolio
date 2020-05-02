@@ -24,6 +24,14 @@
 		background-color: white;
 	}
 
+	&--red {
+		background-color: $red;
+
+		&:hover {
+			background-color: darken($red, 15);
+		}
+	}
+
 	&--google {
 		background-color: white;
 		color: black;

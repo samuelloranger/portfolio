@@ -66,13 +66,13 @@ const Register = () => {
 						</Button>
 					</div>
 
-					<Input label='Nom' name='name' onChange={handleChange} />
+					<Input label='Nom' name='name' value={user.name} onChange={handleChange} />
 
-					<Input label='Nom de famille' name='family_name' onChange={handleChange} />
+					<Input label='Nom de famille' name='family_name' value={user.family_name} onChange={handleChange} />
 
-					<Input label='Courriel' name='email' onChange={handleChange} />
+					<Input label='Courriel' name='email' value={user.email} onChange={handleChange} />
 
-					<Input label='Password' name='password' type='password' onChange={handleChange} />
+					<Input label='Password' name='password' value={password} type='password' onChange={handleChange} />
 
 					<div className='register__container__btns p-25'>
 						<Button action={handleSubmit}>S'enregistrer</Button>

@@ -47,6 +47,7 @@ const LoginPageComponent = () => {
 					error_message: 'Vous devez entrer un courriel.'
 				}
 			}))
+			setLoading(false)
 
 			return false
 		}
@@ -61,6 +62,7 @@ const LoginPageComponent = () => {
 					error_message: 'Vous devez entrer un courriel valide.'
 				}
 			}))
+			setLoading(false)
 
 			return false
 		}
@@ -143,12 +145,12 @@ const LoginPageComponent = () => {
 				<Input
 					label='Courriel'
 					name='email'
-					value={user.password}
+					value={user.email}
 					error={errors.email.value ? <span className='error'>{errors.email.error_message}</span> : null}
 					onChange={handleChange}
 				/>
 
-				<Input label='Password' name='password' type='password' value={user.email} onChange={handleChange} />
+				<Input label='Password' name='password' type='password' value={user.password} onChange={handleChange} />
 
 				{errors.account.value ? (
 					<span className='error error--account'>{errors.account.error_message}</span>

@@ -1,0 +1,41 @@
+.popUpConfirmation {
+	position: absolute;
+	top: 30px;
+	right: 40px;
+	color: $black;
+	background-color: $white;
+	display: flex;
+	align-items: center;
+	@extend .shadow;
+	padding: 10px 15px;
+	border-radius: 8px;
+	animation: appear;
+	animation-fill-mode: both;
+	animation-duration: 0.35s;
+	animation-delay: 0.35s;
+	transition: 0.25s ease-in-out;
+	z-index: 999;
+
+	&--closing {
+		top: -50px;
+		animation: appear;
+		animation-direction: reverse;
+		animation-play-state: running;
+	}
+
+	img {
+		width: 16px;
+		height: 16px;
+		margin-right: 4px;
+	}
+}
+
+@keyframes appear {
+	from {
+		top: -50px;
+	}
+
+	to {
+		top: 30px;
+	}
+}

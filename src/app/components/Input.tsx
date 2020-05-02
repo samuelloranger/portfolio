@@ -60,7 +60,7 @@ const Input = ({
 	}
 
 	return (
-		<div className={`inputField pl-25 pr-25 pt-25${className ? ' ' + className : ''}`}>
+		<div className={`inputField${className ? ' ' + className : ' pl-25 pr-25 pt-25'}`}>
 			<label htmlFor={name}>{label}</label>
 			{type === 'password' ? (
 				<img

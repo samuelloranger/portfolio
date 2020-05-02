@@ -16,6 +16,8 @@ $hamburger-hover-opacity: 1;
 
 /****** Components ******/
 @import "components/header";
+@import "components/wizard";
+@import "components/popUpConfirmation";
 
 /****** Pages ******/
 @import "pages/home";

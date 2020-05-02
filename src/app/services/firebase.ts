@@ -1,5 +1,6 @@
 import * as firebase from 'firebase'
 import 'firebase/firestore'
+import 'firebase/auth'
 import 'firebase/firebase-storage'
 import IUser from '../constants/Interfaces/IUser'
 import { getProfileDocument } from '../constants/firestorePath'
@@ -32,6 +33,10 @@ export const appStorage = () => {
 	return firebase.storage()
 }
 
+export const appAuth = () => {
+	return firebase.auth()
+}
+
 /**
  * Login customer
  * @param username String: username, must be an email
@@ -57,7 +62,7 @@ export const loginUser = async (
 }
 
 export const loginWithSocial = async (type: string): Promise<string | boolean> => {
-	firebase.auth().languageCode = 'fr'
+	appAuth().languageCode = 'fr'
 	let provider = new firebase.auth.GoogleAuthProvider()
 
 	if (type === 'facebook') {
@@ -67,9 +72,9 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 	let login
 	try {
 		if (type === 'google') {
-			login = await firebase.auth().signInWithPopup(provider)
+			login = await appAuth().signInWithPopup(provider)
 		} else {
-			login = await firebase.auth().signInWithRedirect(provider)
+			login = await appAuth().signInWithRedirect(provider)
 		}
 	} catch (err) {
 		return err.code
@@ -117,6 +122,7 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 
 export const getProfilePicture = async (email = '') => {
 	const userData = (await getUserSnapshot(email)).data()
+	if (!!!userData) return ''
 	const basicImg = '/img/userProfileImg.png'
 
 	switch (userData.picture) {
