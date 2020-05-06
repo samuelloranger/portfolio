@@ -1,7 +1,17 @@
 export default interface ISkill {
-	readonly name: string
-	readonly description: string
-	readonly iconUrl: string
-	readonly dateCreated: Date
+	name: string
+	description: string
+	iconUrl: string
+	dateCreated: Date
 	checked: boolean
+}
+
+export const getDefaultSkill = (): ISkill => {
+	return {
+		name: '',
+		description: '',
+		iconUrl: '/icons/uploadImage.svg',
+		dateCreated: new Date(),
+		checked: false
+	}
 }
