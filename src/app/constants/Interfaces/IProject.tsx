@@ -1,19 +1,19 @@
-export default interface ISkill {
+export default interface IProject {
 	id: number
 	name: string
 	description: string
-	iconUrl: string
 	dateCreated: Date
+	images: string[]
 	checked: boolean
 }
 
-export const getDefaultSkill = (): ISkill => {
+export const getDefaultProject = (): IProject => {
 	return {
 		id: Date.now(),
 		name: '',
 		description: '',
-		iconUrl: '/icons/uploadImage.svg',
 		dateCreated: new Date(),
+		images: [],
 		checked: false
 	}
 }

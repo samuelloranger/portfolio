@@ -1,9 +1,9 @@
-import React, { useEffect, useState, ChangeEvent, Fragment } from 'react'
+import { useEffect, useState, ChangeEvent, Fragment } from 'react'
 import { useRouter } from 'next/router'
 
 import moment from 'moment'
 
-import { filter, find, orderBy } from 'lodash'
+import { filter, find } from 'lodash'
 
 //Context
 import IUser, { getDefaultUser } from '../../constants/Interfaces/IUser'
@@ -11,7 +11,7 @@ import { getUserSnapshot } from '../../contexts/UserAuthContext/services'
 
 //Components
 import { Input, Loader, Button, PopUpConfirmation, Wizard } from '..'
-import { appFirestore, appStorage, logout, firebaseApp, appAuth } from '../../services/firebase'
+import { appFirestore, appStorage } from '../../services/firebase'
 import { getProfileDocument } from '../../constants/firestorePath'
 import ISkill, { getDefaultSkill } from '../../constants/Interfaces/ISkill'
 
@@ -37,6 +37,7 @@ const Skills = () => {
 	const [ user, setUser ] = useState<IUser>(getDefaultUser())
 	const [ skills, setSkills ] = useState<ISkill[]>([])
 	const [ newSkill, setNewSkill ] = useState<ISkill>(getDefaultSkill())
+	const [ editMode, setEditMode ] = useState<boolean>(false)
 
 	useEffect(
 		() => {
@@ -54,7 +55,7 @@ const Skills = () => {
 
 				setSkills(
 					collectionSkills.docs.map((doc) => {
-						return { ...doc.data(), checked: false } as ISkill
+						return { id: Number(doc.id), ...doc.data(), checked: false } as ISkill
 					})
 				)
 
@@ -71,7 +72,8 @@ const Skills = () => {
 		setPictureLoading(true)
 		if (fileList[0]) {
 			const file = new File([ fileList[0] as File ], Date.now().toString(), { type: (fileList[0] as File).type })
-			const imgRef = appStorage().ref().child(`users/${user.email}/skill/${file.name}`)
+
+			const imgRef = appStorage().ref().child(`users/${user.email}/skill/`)
 
 			if (file.type !== 'image/svg+xml') {
 				console.log('fileformaterror')
@@ -92,9 +94,14 @@ const Skills = () => {
 	}
 
 	const handleCheck = (name: string) => {
-		const skill = find(skills, (skill) => skill.name === name)
-		skill.checked = !skill.checked
-		setSkills([ ...filter(skills, (item) => item.name !== name), skill ])
+		setSkills((prevState) =>
+			prevState.map((skill) => {
+				if (skill.name !== name) {
+					return skill
+				}
+				return { ...skill, checked: !skill.checked }
+			})
+		)
 	}
 
 	const getSkillsChecked = () => {
@@ -111,7 +118,10 @@ const Skills = () => {
 		setWizard((prevState) => ({
 			...prevState,
 			show: true,
-			title: `Voulez-vous vraiment supprimer ${getSkillsChecked().length} compétence ?`,
+			title: `Voulez-vous vraiment supprimer ${getSkillsChecked().length} compétence${getSkillsChecked().length >
+			1
+				? 's'
+				: ''} ?`,
 			message: 'Toutes les données associées seront supprimées et non récupérables.',
 			confirm: deleteSkills
 		}))
@@ -134,26 +144,10 @@ const Skills = () => {
 		} catch (err) {}
 	}
 
-	const save = async () => {
-		const newSkills = [
-			{ name: 'Design', description: '', dateCreated: new Date(), iconUrl: '' },
-			{ name: 'Gestion', description: '', dateCreated: new Date(), iconUrl: '' },
-			{ name: 'Programmation', description: '', dateCreated: new Date(), iconUrl: '' },
-			{ name: 'Intégration', description: '', dateCreated: new Date(), iconUrl: '' },
-			{ name: 'React', description: '', dateCreated: new Date(), iconUrl: '' }
-		]
-		newSkills.forEach(async (item) => {
-			const set = await appFirestore()
-				.doc(getProfileDocument(user.email))
-				.collection(`skills`)
-				.doc(item.name)
-				.set({
-					name: item.name,
-					description: item.description,
-					dateCreated: item.dateCreated.toString(),
-					iconUrl: item.iconUrl
-				})
-		})
+	const handleEdit = () => {
+		setNewSkill(find(skills, (skill) => skill.checked === true))
+		setShowForm(true)
+		setEditMode(true)
 	}
 
 	const verifyErrors = () => {
@@ -194,16 +188,45 @@ const Skills = () => {
 		setLoading(true)
 
 		if (!verifyErrors()) {
-			const set = await appFirestore()
-				.doc(getProfileDocument(user.email))
-				.collection(`skills`)
-				.doc(newSkill.name)
-				.set({
-					name: newSkill.name,
-					description: newSkill.description,
-					dateCreated: newSkill.dateCreated.toString(),
-					iconUrl: newSkill.iconUrl
-				})
+			if (editMode) {
+				const set = await appFirestore()
+					.doc(getProfileDocument(user.email))
+					.collection(`skills`)
+					.doc(newSkill.id.toString())
+					.update({
+						id: newSkill.id,
+						name: newSkill.name,
+						description: newSkill.description,
+						iconUrl: newSkill.iconUrl
+					})
+
+				setEditMode(false)
+
+				setConfirmation((prevState) => ({
+					...prevState,
+					show: true,
+					message: `La compétence a été mise à jour.`
+				}))
+
+				setNewSkill(getDefaultSkill())
+			} else {
+				const set = await appFirestore()
+					.doc(getProfileDocument(user.email))
+					.collection(`skills`)
+					.doc(Date.now().toString())
+					.set({
+						name: newSkill.name,
+						description: newSkill.description,
+						dateCreated: newSkill.dateCreated.toString(),
+						iconUrl: newSkill.iconUrl
+					})
+
+				setConfirmation((prevState) => ({
+					...prevState,
+					show: true,
+					message: `La compétence a été ajoutée.`
+				}))
+			}
 
 			setShowForm(false)
 			setShouldReload(Date.now())
@@ -245,7 +268,7 @@ const Skills = () => {
 						</Fragment>
 					) : (
 						<Fragment>
-							<h2>Mon compétences</h2>
+							<h2>Mes compétences</h2>
 							<p>Vous pouvez ajouter jusqu'à 6 compétences</p>
 							<div className='actionBar'>
 								<div className='actionBar__left'>
@@ -254,7 +277,7 @@ const Skills = () => {
 								</div>
 								<div className='actionBar__right'>
 									{getSkillsChecked().length === 1 ? (
-										<p className='actionBar__right__btnWithIcon'>
+										<p className='actionBar__right__btnWithIcon' onClick={handleEdit}>
 											<img src='/icons/edit.svg' alt='' />Editer
 										</p>
 									) : null}
@@ -289,7 +312,7 @@ const Skills = () => {
 									) : null}
 
 									<Input
-										label='Nom de la compétence'
+										label='Description de la compétence'
 										name='description'
 										type='textarea'
 										maxLength={500}
@@ -334,36 +357,47 @@ const Skills = () => {
 								</div>
 							</div>
 
-							<div className='form__buttons'>
-								<Button action={handleSubmit}>+ Ajouter</Button>
-								<p className='a' onClick={() => setShowForm(false)}>
+							<div className='form__buttons pb-15'>
+								<Button action={handleSubmit}>{editMode ? 'Enregistrer' : '+ Ajouter'}</Button>
+								<p
+									className='a'
+									onClick={() => {
+										setShowForm(false)
+										setNewSkill(getDefaultSkill())
+									}}>
 									Annuler
 								</p>
 							</div>
 						</form>
 					) : (
 						<div className='itemsList'>
-							{orderBy(skills, (skill) => !skill.checked).map((skill, key) => {
-								return (
-									<label htmlFor={skill.name} className='itemsList__item' key={key}>
-										<input
-											name={skill.name}
-											id={skill.name}
-											type='checkbox'
-											onChange={() => handleCheck(skill.name)}
-										/>
-										<span
-											className={`itemsList__item__checkbox${skill.checked
-												? ` itemsList__item__checkbox--checked`
-												: ''}`}
-										/>
-										<div className='itemsList__item__data'>
-											<p className='name'>{skill.name}</p>
-											<p className='date'>{moment(skill.dateCreated).format('ll')}</p>
-										</div>
-									</label>
-								)
-							})}
+							{skills.length === 0 ? (
+								<p className='pl-25 pr-15'>
+									Il n'y a aucune compétence à votre profil ! Ajoutez-en une.
+								</p>
+							) : (
+								skills.map((skill, key) => {
+									return (
+										<label htmlFor={skill.name} className='itemsList__item' key={key}>
+											<input
+												name={skill.name}
+												id={skill.name}
+												type='checkbox'
+												onChange={() => handleCheck(skill.name)}
+											/>
+											<span
+												className={`itemsList__item__checkbox${skill.checked
+													? ` itemsList__item__checkbox--checked`
+													: ''}`}
+											/>
+											<div className='itemsList__item__data'>
+												<p className='name'>{skill.name}</p>
+												<p className='date'>{moment(skill.dateCreated).format('ll')}</p>
+											</div>
+										</label>
+									)
+								})
+							)}
 						</div>
 					)}
 				</div>

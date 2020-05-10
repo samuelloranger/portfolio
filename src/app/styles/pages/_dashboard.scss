@@ -142,11 +142,20 @@
 						display: flex;
 						align-items: center;
 						margin: 0 0 25px 0;
+						cursor: pointer;
 
 						img {
 							width: 18px;
 							height: 18px;
 							margin-right: 4px;
+						}
+					}
+
+					&__btnAdd {
+						margin-top: 25px;
+
+						@include desktop {
+							margin-top: 0;
 						}
 					}
 				}
@@ -352,10 +361,24 @@
 							display: flex;
 							justify-content: center;
 							align-items: center;
+							cursor: pointer;
 
 							img {
 								width: 55px;
 								height: 55px;
+							}
+						}
+
+						.projectImages {
+							display: flex;
+							flex-wrap: wrap;
+
+							&__img {
+								width: 112px;
+								height: 112px;
+								margin-right: 8px;
+								border-radius: 8px;
+								object-fit: cover;
 							}
 						}
 

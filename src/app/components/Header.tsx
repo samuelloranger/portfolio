@@ -93,7 +93,7 @@ const Header = () => {
 											</Link>
 										</li>
 										<li className='item'>
-											<Link href='/dashboard/'>
+											<Link href='/dashboard/skills'>
 												<a className='itemLink' href=''>
 													Mes compétences
 												</a>
