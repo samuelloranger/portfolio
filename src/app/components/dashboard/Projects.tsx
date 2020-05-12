@@ -118,6 +118,13 @@ const Projects = () => {
 		setNewProject((prevState) => ({ ...prevState, [input.name]: input.value }))
 	}
 
+	const handleDeleteImg = (imgUrl) => {
+		setNewProject((prevState) => ({
+			...prevState,
+			images: filter(prevState.images, (image) => image === imgUrl)
+		}))
+	}
+
 	const handleDelete = () => {
 		setWizard((prevState) => ({
 			...prevState,
@@ -334,39 +341,41 @@ const Projects = () => {
 								</div>
 								<div className='form__fields__right'>
 									<div className='inputField pl-25 pr-25 pt-25'>
-										<label htmlFor='projectImg'>Icône de la projet</label>
-										<p>
-											Nous vous conseillons de téléverser un icône en noir en blanc, avec un filet
-											mince. <strong>Fichiers SVG seulement.</strong>
-										</p>
-										<label htmlFor='projectImg'>
-											<input
-												name='projectImg'
-												id='projectImg'
-												type='file'
-												multiple
-												onChange={(e) =>
-													setupImgUpload((e.currentTarget as HTMLInputElement)
-														.files as FileList)}
-											/>
+										<label htmlFor='projectImg'>Images du projet</label>
+										<p>Nous vous conseillons de téléverser au moins 4 images.</p>
+										<input
+											name='projectImg'
+											id='projectImg'
+											type='file'
+											multiple
+											onChange={(e) =>
+												setupImgUpload((e.currentTarget as HTMLInputElement).files as FileList)}
+										/>
 
-											<div className='projectImages'>
-												{newProject.images.length ? (
-													newProject.images.map((image, key) => {
-														return (
+										<div className='projectImages'>
+											{newProject.images.length ? (
+												newProject.images.map((image, key) => {
+													return (
+														<div className='projectImages__image'>
+															<span
+																className='projectImages__image__deleteBtn'
+																onClick={() => handleDeleteImg(image)}
+															/>
 															<img
-																className='projectImages__img shadow'
+																className='projectImages__image__img shadow'
 																src={image}
 																key={key}
 															/>
-														)
-													})
-												) : null}
+														</div>
+													)
+												})
+											) : null}
+											<label htmlFor='projectImg' className='projectImg'>
 												<div className='inputField__uploadZone'>
 													<img src='/icons/uploadImage.svg' />
 												</div>
-											</div>
-										</label>
+											</label>
+										</div>
 										{errors.projectImageFormat ? (
 											<p className='error'>Vous devez choisir un icône au format SVG.</p>
 										) : null}

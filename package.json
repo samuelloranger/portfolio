@@ -1,9 +1,9 @@
 {
-	"name": "with-firebase-hosting",
+	"name": "portfogram",
 	"version": "4.0.1",
-	"description": "Host Next.js SSR app on Firebase Cloud Functions with Firebase Hosting redirects.",
+	"description": "Créez votre portfolio en ligne",
 	"engines": {
-		"node": "12.16.2"
+		"node": "10"
 	},
 	"scripts": {
 		"dev": "next \"src/app/\"",

@@ -199,6 +199,12 @@ const Profile = () => {
 
 				<div className='dashboard__form__content'>
 					<div className='left'>
+						<Input
+							label='Mon nom d&#39;utilisateur'
+							name='username'
+							value={user.username}
+							onChange={handleChange}
+						/>
 						<Input label='Mon prénom' name='name' value={user.name} onChange={handleChange} />
 						<Input label='Mon nom' name='family_name' value={user.family_name} onChange={handleChange} />
 						<Input

@@ -15,7 +15,7 @@ import GoogleIcon from '../constants/Icones/GoogleIcon'
 import FacebookIcon from '../constants/Icones/FacebookIcon'
 
 const Register = () => {
-	const [ user, setUser ] = useState<IUser>({ name: '', family_name: '', email: '', picture: 'custom' })
+	const [ user, setUser ] = useState<IUser>({ username: '', name: '', family_name: '', email: '', picture: 'custom' })
 	const [ password, setPassword ] = useState<string>('')
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +65,13 @@ const Register = () => {
 							</Fragment>
 						</Button>
 					</div>
+
+					<Input
+						label='Nom d&#39;utilisateur'
+						name='username'
+						value={user.username}
+						onChange={handleChange}
+					/>
 
 					<Input label='Nom' name='name' value={user.name} onChange={handleChange} />
 

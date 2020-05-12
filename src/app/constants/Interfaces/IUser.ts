@@ -1,4 +1,5 @@
 export default interface IUser {
+	readonly username: string
 	readonly name: string
 	readonly family_name: string
 	readonly email: string
@@ -13,6 +14,7 @@ export default interface IUser {
 
 export const getDefaultUser = (): IUser => {
 	return {
+		username: '',
 		name: '',
 		family_name: '',
 		email: '',
