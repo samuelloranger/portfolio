@@ -9,7 +9,11 @@ import LoginPageComponent from '../components/LoginPageComponent'
 import UserAuthContext from '../contexts/UserAuthContext/UserAuthContext'
 import { userAuthStateListener } from '../services/firebase'
 
-const Login = () => {
+interface IProps {
+	readonly query: any
+}
+
+const Login = ({ query }: IProps) => {
 	const { userSnapshot } = useContext(UserAuthContext)
 	const [ userConnected, setUserConnected ] = useState<boolean>(false)
 
@@ -32,9 +36,13 @@ const Login = () => {
 
 	return (
 		<Main>
-			<LoginPageComponent />
+			<LoginPageComponent query={query} />
 		</Main>
 	)
+}
+
+Login.getInitialProps = async ({ query }) => {
+	return { query }
 }
 
 export default Login

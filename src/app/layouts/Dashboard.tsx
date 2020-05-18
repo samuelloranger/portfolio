@@ -17,7 +17,11 @@ import Loader from 'react-spinners/ClipLoader'
 
 import { Profile, Projects, Skills, Home } from '../components/dashboard'
 
-const Dashboard = () => {
+interface IProps {
+	readonly query?: any
+}
+
+const Dashboard = ({ query }: IProps) => {
 	const router = useRouter()
 	const [ loading, setLoading ] = useState<boolean>(true)
 	const { userSnapshot } = useContext(UserAuthContext)
@@ -25,7 +29,7 @@ const Dashboard = () => {
 
 	const pages = [
 		{
-			url: '/dashboard/index',
+			url: '/dashboard',
 			iconName: 'home',
 			name: 'Home',
 			component: <Home />
@@ -40,13 +44,13 @@ const Dashboard = () => {
 			url: '/dashboard/projects',
 			iconName: 'projects',
 			name: 'Mes projets',
-			component: <Projects />
+			component: <Projects query={query} />
 		},
 		{
 			url: '/dashboard/skills',
 			iconName: 'skills',
 			name: 'Mes compétences',
-			component: <Skills />
+			component: <Skills query={query} />
 		}
 	]
 
@@ -95,9 +99,6 @@ const Dashboard = () => {
 				<div className='dashboard__sidebar'>
 					<ul className='dashboard__sidebar__nav'>
 						{pages.map((item, key) => {
-							if (item.name === 'Home') {
-								return null
-							}
 							return (
 								<Link href={item.url} key={key}>
 									<a

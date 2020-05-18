@@ -1,0 +1,105 @@
+.portfolio {
+	padding: 0 15px;
+
+	@include desktop {
+		padding: 0;
+	}
+
+	&__userInfos {
+		&__header {
+			display: flex;
+			margin-bottom: 35px;
+			flex-direction: column;
+
+			@include tablet {
+				flex-direction: row;
+			}
+
+			.picture {
+				border-radius: 50%;
+				width: 170px;
+				height: 170px;
+			}
+
+			.name {
+				padding-top: 15px;
+
+				@include tablet {
+					margin-left: 40px;
+				}
+
+				.first_name {
+					display: block;
+					color: $darkGray;
+					@include fontSize(45px);
+				}
+
+				.last_name {
+					display: block;
+					@include fontSize(75px);
+					@include thirdFont;
+				}
+			}
+		}
+
+		&__details {
+			color: $darkGray;
+
+			.info {
+				display: flex;
+				align-items: center;
+				font-weight: 700;
+
+				&__icon {
+					width: 22px;
+					height: 22px;
+					margin-right: 8px;
+				}
+
+				&__description {
+					max-width: 650px;
+				}
+			}
+
+			.tags {
+				max-width: 370px;
+
+				&__tag {
+					margin-right: 8px;
+					font-weight: 700;
+				}
+			}
+		}
+	}
+
+	&__skills {
+		display: grid;
+		margin: 50px 0;
+		grid-template-columns: 100%;
+
+		@include small {
+			grid-template-columns: 50% 50%;
+		}
+
+		@include desktop {
+			grid-template-columns: 25% 25% 25% 25%;
+		}
+
+		&__skill {
+			display: flex;
+			flex-direction: column;
+			padding: 0 15px;
+
+			.picture {
+				width: 120px;
+				height: 120px;
+				margin: 0 auto;
+			}
+
+			.title {
+				text-align: center;
+				margin: 12px 0;
+			}
+		}
+	}
+}

@@ -15,7 +15,11 @@ import { appFirestore, appStorage } from '../../services/firebase'
 import { getProfileDocument } from '../../constants/firestorePath'
 import ISkill, { getDefaultSkill } from '../../constants/Interfaces/ISkill'
 
-const Skills = () => {
+interface IProps {
+	readonly query: any
+}
+
+const Skills = ({ query }: IProps) => {
 	const router = useRouter()
 	//UI Stuff
 	const [ loading, setLoading ] = useState<boolean>(true)
@@ -68,12 +72,33 @@ const Skills = () => {
 		[ user.picture, user.c_picture, shouldReload ]
 	)
 
+	useEffect(
+		() => {
+			const getData = async () => {
+				const userData = (await getUserSnapshot()).data()
+				const skillToEdit = await appFirestore()
+					.doc(getProfileDocument(userData.email))
+					.collection(`skills`)
+					.doc(query.edit)
+					.get()
+
+				setNewSkill({ id: Number(skillToEdit.id), ...skillToEdit.data() } as ISkill)
+				setShowForm(true)
+				setEditMode(true)
+			}
+
+			if (!!!query.edit) return
+			getData()
+		},
+		[ query ]
+	)
+
 	const setupImgUpload = async (fileList: FileList) => {
 		setPictureLoading(true)
 		if (fileList[0]) {
 			const file = new File([ fileList[0] as File ], Date.now().toString(), { type: (fileList[0] as File).type })
 
-			const imgRef = appStorage().ref().child(`users/${user.email}/skill/`)
+			const imgRef = appStorage().ref().child(`users/${user.email}/skill/${file.name}`)
 
 			if (file.type !== 'image/svg+xml') {
 				console.log('fileformaterror')
@@ -278,7 +303,7 @@ const Skills = () => {
 								<div className='actionBar__right'>
 									{getSkillsChecked().length === 1 ? (
 										<p className='actionBar__right__btnWithIcon' onClick={handleEdit}>
-											<img src='/icons/edit.svg' alt='' />Editer
+											<img src='/icons/edit.svg' alt='' />Éditer
 										</p>
 									) : null}
 

@@ -15,7 +15,13 @@ const Header = () => {
 	const { width } = useWindowSize()
 	const { userSnapshot } = useContext(UserAuthContext)
 
-	const [ state, setState ] = useState({ loading: true, menuActive: false, userConnected: false, userPicture: '' })
+	const [ state, setState ] = useState({
+		loading: true,
+		menuActive: false,
+		userConnected: false,
+		username: '',
+		userPicture: ''
+	})
 
 	useEffect(
 		() => {
@@ -32,9 +38,11 @@ const Header = () => {
 			}))
 
 			const profilePicture = await getProfilePicture()
+
 			setState((prevState) => ({
 				...prevState,
-				userPicture: profilePicture
+				userPicture: profilePicture,
+				username: userSnapshot ? userSnapshot.data().username : ''
 			}))
 
 			setState((prevState) => ({
@@ -110,11 +118,23 @@ const Header = () => {
 								</li>
 								{!state.loading ? (
 									<li className='item'>
-										<img
-											className='header__container__userPicture'
-											src={state.userPicture}
-											alt=''
-										/>
+										{state.username ? (
+											<Link href={`/${state.username}`}>
+												<a>
+													<img
+														className='header__container__userPicture'
+														src={state.userPicture}
+														alt=''
+													/>
+												</a>
+											</Link>
+										) : (
+											<img
+												className='header__container__userPicture'
+												src={state.userPicture}
+												alt=''
+											/>
+										)}
 									</li>
 								) : (
 									<Loader />

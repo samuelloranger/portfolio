@@ -4,11 +4,13 @@ import { Button } from '.'
 interface IProps {
 	readonly title: string
 	readonly message: string
+	readonly showTrashIcon?: boolean
+	readonly btnMessage?: string
 	readonly confirm: () => void
 	readonly close: () => void
 }
 
-const Wizard = ({ title, message, confirm, close }: IProps) => {
+const Wizard = ({ title, message, showTrashIcon = true, btnMessage = 'Supprimer', confirm, close }: IProps) => {
 	const [ state, setState ] = useState({ closing: false, timer: undefined })
 
 	useEffect(() => {
@@ -45,7 +47,7 @@ const Wizard = ({ title, message, confirm, close }: IProps) => {
 					</p>
 					<Button action={handleConfirm} className='btn--red'>
 						<Fragment>
-							<img src='/icons/trash.svg' alt='' /> Supprimer
+							{showTrashIcon && <img src='/icons/trash.svg' alt='' />} {btnMessage}
 						</Fragment>
 					</Button>
 				</div>

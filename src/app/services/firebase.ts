@@ -5,6 +5,7 @@ import 'firebase/firebase-storage'
 import IUser from '../constants/Interfaces/IUser'
 import { getProfileDocument } from '../constants/firestorePath'
 import { getUserSnapshot } from '../contexts/UserAuthContext/services'
+import Router from 'next/router'
 
 const firebaseConfig = {
 	apiKey: process.env.FIRESTORE_KEY,
@@ -26,7 +27,7 @@ export const firebaseApp = () => {
 }
 
 export const appFirestore = () => {
-	return firebase.app().firestore()
+	return firebaseApp().firestore()
 }
 
 export const appStorage = () => {
@@ -74,7 +75,7 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 		if (type === 'google') {
 			login = await appAuth().signInWithPopup(provider)
 		} else {
-			login = await appAuth().signInWithRedirect(provider)
+			login = await appAuth().signInWithPopup(provider)
 		}
 	} catch (err) {
 		return err.code
@@ -106,6 +107,8 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 				picture: 'google',
 				g_picture: googleProfile.picture
 			})
+
+			Router.push('/register?action=updateUsername')
 		} else {
 			const facebookProfile = login.additionalUserInfo.profile
 
@@ -116,6 +119,8 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 				picture: 'facebook',
 				f_picture: facebookProfile.picture.data.url
 			})
+
+			Router.push('/register?action=updateUsername')
 		}
 	} else return true
 }
@@ -138,12 +143,57 @@ export const getProfilePicture = async (email = '') => {
 	}
 }
 
+export const verifyUsername = async (username: string) => {
+	const users = await appFirestore().collection('users').where('username', '==', username).get()
+	return !users.docs.length
+}
+
+export const verifyEmail = async (email: string) => {
+	const users = await appFirestore().collection('users').doc(email).get()
+	return !users.exists
+}
+
+export const changeEmail = async (user: IUser, oldEmail: string) => {
+	const usersColl = appFirestore().collection('users')
+	const collProjets = await usersColl.doc(oldEmail).collection('projects').get()
+	const collSkills = await usersColl.doc(oldEmail).collection('skills').get()
+	const collTags = await usersColl.doc(oldEmail).collection('tags').get()
+
+	try {
+		await usersColl.doc(user.email).set({ ...user })
+
+		collProjets.docs.map(async (project) => {
+			await usersColl.doc(oldEmail).collection('projects').doc(project.id).delete()
+			return await usersColl.doc(user.email).collection('projects').doc(project.id).set({ ...project.data() })
+		})
+
+		collTags.docs.map(async (tag) => {
+			await usersColl.doc(oldEmail).collection('tags').doc(tag.id).delete()
+			return await usersColl.doc(user.email).collection('tags').doc(tag.id).set({ ...tag.data() })
+		})
+
+		collSkills.docs.map(async (skill) => {
+			await usersColl.doc(oldEmail).collection('skills').doc(skill.id).delete()
+			return await usersColl.doc(user.email).collection('skills').doc(skill.id).set({ ...skill.data() })
+		})
+
+		await firebaseApp().auth().currentUser.updateEmail(user.email)
+
+		await usersColl.doc(oldEmail).delete()
+	} catch (err) {
+		return false
+	}
+
+	return true
+}
+
 /**
  * Logs out the user
  */
 export const logout = async (): Promise<boolean> => {
 	try {
 		await firebaseApp().auth().signOut()
+		Router.push('/')
 		return true
 	} catch (error) {
 		return false

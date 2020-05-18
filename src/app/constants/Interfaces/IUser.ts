@@ -8,6 +8,7 @@ export default interface IUser {
 	readonly f_picture?: string
 	readonly g_picture?: string
 	readonly description?: string
+	readonly location?: string
 	readonly poste?: string
 	readonly employeur?: string
 }

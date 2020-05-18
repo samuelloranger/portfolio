@@ -15,7 +15,11 @@ import { appFirestore, appStorage } from '../../services/firebase'
 import { getProfileDocument } from '../../constants/firestorePath'
 import IProject, { getDefaultProject } from '../../constants/Interfaces/IProject'
 
-const Projects = () => {
+interface IProps {
+	query: any
+}
+
+const Projects = ({ query }: IProps) => {
 	const router = useRouter()
 	//UI Stuff
 	const [ loading, setLoading ] = useState<boolean>(true)
@@ -68,6 +72,28 @@ const Projects = () => {
 		[ user.picture, user.c_picture, shouldReload ]
 	)
 
+	useEffect(
+		() => {
+			const getData = async () => {
+				const userData = (await getUserSnapshot()).data()
+				const projectToEdit = await appFirestore()
+					.doc(getProfileDocument(userData.email))
+					.collection(`projects`)
+					.doc(query.edit)
+					.get()
+
+				setNewProject({ id: Number(projectToEdit.id), ...projectToEdit.data() } as IProject)
+				setShowForm(true)
+				setEditMode(true)
+				query.edit = null
+			}
+
+			if (!!!query.edit) return
+			getData()
+		},
+		[ query ]
+	)
+
 	const setupImgUpload = async (fileList: FileList) => {
 		setPictureLoading(true)
 
@@ -118,10 +144,10 @@ const Projects = () => {
 		setNewProject((prevState) => ({ ...prevState, [input.name]: input.value }))
 	}
 
-	const handleDeleteImg = (imgUrl) => {
+	const handleDeleteImg = (imgUrl: string) => {
 		setNewProject((prevState) => ({
 			...prevState,
-			images: filter(prevState.images, (image) => image === imgUrl)
+			images: filter(prevState.images, (image) => image !== imgUrl)
 		}))
 	}
 
@@ -142,19 +168,19 @@ const Projects = () => {
 		const nbrDeleted = getProjectsChecked().length
 		try {
 			getProjectsChecked().forEach(async (project) => {
-				await appFirestore()
-					.doc(getProfileDocument(user.email))
-					.collection(`projects`)
-					.doc(project.name)
-					.delete()
+				appFirestore().doc(getProfileDocument(user.email)).collection(`projects`).doc(project.name).delete()
 			})
+
+			console.log('test')
 
 			setShouldReload(Date.now())
 
 			setConfirmation((prevState) => ({
 				...prevState,
 				show: true,
-				message: `${nbrDeleted} projets ont été supprimées.`
+				message: `${nbrDeleted} projet${nbrDeleted > 1 ? 's' : ''} ${nbrDeleted > 1
+					? 'ont'
+					: 'a'} été supprimé${nbrDeleted > 1 ? 's' : ''}.`
 			}))
 		} catch (err) {}
 	}
@@ -381,7 +407,9 @@ const Projects = () => {
 										) : null}
 
 										{errors.projectNeedsImage && !errors.projectImageFormat ? (
-											<p className='error'>Vous devez choisir un icône pour cette projet.</p>
+											<p className='error'>
+												Vous devez choisir au moins une image pour ce projet.
+											</p>
 										) : null}
 									</div>
 								</div>
@@ -433,5 +461,4 @@ const Projects = () => {
 		</div>
 	)
 }
-
 export default Projects

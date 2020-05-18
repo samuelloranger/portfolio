@@ -10,7 +10,9 @@ interface IProps {
 	readonly pattern?: string
 	readonly error?: JSX.Element | null
 	readonly maxLength?: number
+	readonly disabled?: boolean
 	readonly onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+	readonly onBlur?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
 }
 
 const Input = ({
@@ -18,6 +20,8 @@ const Input = ({
 	className,
 	name,
 	onChange,
+	onBlur,
+	disabled = false,
 	error,
 	defaultChecked,
 	value,
@@ -76,6 +80,8 @@ const Input = ({
 				id={name}
 				pattern={pattern ? pattern : ''}
 				value={value ? value : ''}
+				disabled={disabled}
+				onBlur={onBlur ? onBlur : undefined}
 				autoComplete={type === 'password' ? 'current-password' : 'on'}
 				type={type === 'password' ? !showPw ? 'password' : 'text' : type}
 				onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e)}

@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 //Component
 import { Input, Button, Loader } from '../components'
-import { loginUser, loginWithSocial } from '../services/firebase'
+import { loginUser, loginWithSocial, firebaseApp } from '../services/firebase'
 
 //Icones
 import GoogleIcon from '../constants/Icones/GoogleIcon'
@@ -13,7 +13,11 @@ import FacebookIcon from '../constants/Icones/FacebookIcon'
 
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-const LoginPageComponent = () => {
+interface IProps {
+	readonly query?: any
+}
+
+const LoginPageComponent = ({ query }: IProps) => {
 	const [ loading, setLoading ] = useState<boolean>(false)
 	const [ user, setUser ] = useState({ email: '', password: '' })
 	const [ errors, setErrors ] = useState({
@@ -27,6 +31,19 @@ const LoginPageComponent = () => {
 		}
 	})
 	const [ rememberMe, setRememberMe ] = useState<boolean>(false)
+	const [ passwordChangeRequest, setPasswordChangeRequest ] = useState<boolean>(false)
+	const [ passwordChanged, setPasswordChanged ] = useState<boolean>(false)
+
+	useEffect(
+		() => {
+			if (!!!query) return
+
+			if (query.action && query.action === 'passwordChanged') {
+				setPasswordChanged(true)
+			}
+		},
+		[ query ]
+	)
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const input = e.currentTarget as HTMLInputElement
@@ -122,11 +139,20 @@ const LoginPageComponent = () => {
 		await loginWithSocial(social)
 	}
 
+	const sendForgotPasswordEmail = () => {
+		if (validateEmail() && !passwordChangeRequest) {
+			firebaseApp().auth().sendPasswordResetEmail(user.email)
+			setPasswordChangeRequest(true)
+		}
+	}
+
 	return (
 		<div className='register container'>
 			<h1>Se connecter</h1>
 
 			<form className='register__container container shadow border-radius '>
+				{passwordChanged && <p className='pt-25 pl-15 mb-0 bold'>Votre mot de passe a été changé.</p>}
+
 				<div className='register__container__btnSocial'>
 					<Button className='btn--google' action={() => loginSocial('google')}>
 						<Fragment>
@@ -150,11 +176,18 @@ const LoginPageComponent = () => {
 					onChange={handleChange}
 				/>
 
-				<Input label='Password' name='password' type='password' value={user.password} onChange={handleChange} />
-
-				{errors.account.value ? (
-					<span className='error error--account'>{errors.account.error_message}</span>
-				) : null}
+				<Input
+					label='Password'
+					name='password'
+					type='password'
+					value={user.password}
+					onChange={handleChange}
+					error={
+						errors.account.value && (
+							<span className='error error--account'>{errors.account.error_message}</span>
+						)
+					}
+				/>
 
 				<Input
 					label='Se souvenir de moi'
@@ -165,6 +198,16 @@ const LoginPageComponent = () => {
 					defaultChecked={true}
 					onChange={() => setRememberMe(!rememberMe)}
 				/>
+
+				<p className='a pl-25' onClick={sendForgotPasswordEmail}>
+					Mot de passe oublié?
+				</p>
+
+				{passwordChangeRequest && (
+					<p className='pl-25'>
+						Nous vous avons envoyé un courriel pour que vous puissiez changer de mot de passe.
+					</p>
+				)}
 
 				<div className='register__container__btns p-25'>
 					<Button action={handleSubmit}>{loading ? <Loader /> : 'Se connecter'}</Button>

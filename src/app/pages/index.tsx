@@ -13,47 +13,19 @@ import IProject from '../constants/Interfaces/IProject'
 
 //Components
 import Main from '../layouts/Main'
-import Loader from '../components/Loader'
 
-const index = () => {
-	const [ loading, setLoading ] = useState<boolean>(true)
+interface IProps {
+	readonly users: IUser[]
+	readonly projects: IProject[]
+}
+
+const index = ({ users, projects }: IProps) => {
 	const { userSnapshot } = useContext(UserAuthContext)
 	const [ userConnected, setUserConnected ] = useState<boolean>(false)
-
-	const [ users, setUsers ] = useState<IUser[]>([])
-	const [ projects, setProjects ] = useState<IProject[]>([])
 
 	useEffect(
 		() => {
 			userAuthStateListener(userListener)
-
-			const getContent = async () => {
-				const usersColl = await appFirestore().collection('users').get()
-				setUsers(
-					take(usersColl.docs, 8).map((user) => {
-						return user.data() as IUser
-					})
-				)
-
-				const projectsCollections: IProject[] = []
-
-				for (const user of usersColl.docs) {
-					const userProjectsColl = await user.ref.collection('projects').orderBy('dateCreated', 'asc').get()
-					userProjectsColl.docs.map((project) => {
-						projectsCollections.push({
-							id: Number(project.id),
-							...project.data(),
-							author: user.data()
-						} as IProject)
-					})
-				}
-
-				setProjects(projectsCollections)
-
-				setLoading(false)
-			}
-
-			getContent()
 		},
 		[ userSnapshot ]
 	)
@@ -63,8 +35,6 @@ const index = () => {
 			setUserConnected(true)
 		}
 	}
-
-	console.log(projects)
 
 	return (
 		<Main>
@@ -90,86 +60,105 @@ const index = () => {
 						</div>
 					</div>
 				) : null}
-
-				{loading ? (
+				{/* {loading ? (
 					<div className='home__contentLoader'>
 						<Loader color='#000' size={80} />
 					</div>
-				) : (
-					<div className='home__content'>
-						<div className='home__content__projects'>
-							<h2 className='title'>Les derniers projets</h2>
-							<div className='grid'>
-								{projects.map((project, key) => {
-									console.log(project)
-									return (
-										<Link href={`/${project.author.username}#${project.id}`} key={key}>
-											<a className='grid__item'>
-												<h3 className='grid__item__name'>{project.name}</h3>
-												<img
-													className='grid__item__img'
-													src={project.images[0]}
-													alt={`Couverture du projet ${project.name} par ${project.author
-														.name} ${project.author.family_name}`}
-												/>
-											</a>
-										</Link>
-									)
-								})}
-							</div>
-						</div>
-						<div className='home__content__users'>
-							<h2 className='title'>Les derniers utilisateurs inscrits</h2>
-							<div className='list'>
-								{users.map((user, key) => {
-									return (
-										<Link href={`/${user.username}`} key={key}>
-											<a className='list__user'>
-												{user.picture === 'custom' ? (
-													<img
-														className='list__user__picture'
-														src={user.c_picture}
-														alt={`Photo de profil de ${user.name} ${user.family_name}`}
-													/>
-												) : null}
-												{user.picture === 'facebook' ? (
-													<img
-														className='list__user__picture'
-														src={user.f_picture}
-														alt={`Photo de profil de ${user.name} ${user.family_name}`}
-													/>
-												) : null}
-												{user.picture === 'google' ? (
-													<img
-														className='list__user__picture'
-														src={user.g_picture}
-														alt={`Photo de profil de ${user.name} ${user.family_name}`}
-													/>
-												) : null}
-												{user.picture === 'none' ? (
-													<img
-														className='list__user__picture'
-														src='/img/userProfileImg.png'
-														alt={`Photo de profil de ${user.name} ${user.family_name}`}
-													/>
-												) : null}
-												<div className='list__user__infos'>
-													<p className='name'>
-														{user.name} {user.family_name}
-													</p>
-													<p className='link'>Voir le portfolio</p>
-												</div>
-											</a>
-										</Link>
-									)
-								})}
-							</div>
+				) : ( */}
+				<div className='home__content'>
+					<div className='home__content__projects'>
+						<h2 className='title'>Les derniers projets</h2>
+						<div className='grid'>
+							{projects.map((project, key) => {
+								console.log(project)
+								return (
+									<Link href={`/${project.author.username}#${project.id}`} key={key}>
+										<a className='grid__item'>
+											<h3 className='grid__item__name'>{project.name}</h3>
+											<img
+												className='grid__item__img'
+												src={project.images[0]}
+												alt={`Couverture du projet ${project.name} par ${project.author
+													.name} ${project.author.family_name}`}
+											/>
+										</a>
+									</Link>
+								)
+							})}
 						</div>
 					</div>
-				)}
+					<div className='home__content__users'>
+						<h2 className='title'>Les derniers utilisateurs inscrits</h2>
+						<div className='list'>
+							{users.map((user, key) => {
+								return (
+									<Link href={`/${user.username}`} key={key}>
+										<a className='list__user'>
+											{user.picture === 'custom' ? (
+												<img
+													className='list__user__picture'
+													src={user.c_picture}
+													alt={`Photo de profil de ${user.name} ${user.family_name}`}
+												/>
+											) : null}
+											{user.picture === 'facebook' ? (
+												<img
+													className='list__user__picture'
+													src={user.f_picture}
+													alt={`Photo de profil de ${user.name} ${user.family_name}`}
+												/>
+											) : null}
+											{user.picture === 'google' ? (
+												<img
+													className='list__user__picture'
+													src={user.g_picture}
+													alt={`Photo de profil de ${user.name} ${user.family_name}`}
+												/>
+											) : null}
+											{user.picture === 'none' ? (
+												<img
+													className='list__user__picture'
+													src='/img/userProfileImg.png'
+													alt={`Photo de profil de ${user.name} ${user.family_name}`}
+												/>
+											) : null}
+											<div className='list__user__infos'>
+												<p className='name'>
+													{user.name} {user.family_name}
+												</p>
+												<p className='link'>Voir le portfolio</p>
+											</div>
+										</a>
+									</Link>
+								)
+							})}
+						</div>
+					</div>
+				</div>
 			</main>
 		</Main>
 	)
+}
+
+index.getInitialProps = async () => {
+	const usersColl = await appFirestore().collection('users').get()
+	const users = take(usersColl.docs, 8).map((user) => {
+		return user.data() as IUser
+	})
+
+	const projectsCollections: IProject[] = []
+	for (const user of usersColl.docs) {
+		const userProjectsColl = await user.ref.collection('projects').orderBy('dateCreated', 'asc').get()
+		userProjectsColl.docs.map((project) => {
+			projectsCollections.push({
+				id: Number(project.id),
+				...project.data(),
+				author: user.data()
+			} as IProject)
+		})
+	}
+
+	return { users: users, projects: projectsCollections }
 }
 
 export default index

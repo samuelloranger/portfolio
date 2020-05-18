@@ -10,20 +10,37 @@ import { getUserSnapshot } from '../../contexts/UserAuthContext/services'
 
 //Components
 import { Input, Loader, Button, PopUpConfirmation, Wizard } from '..'
-import { appFirestore, appStorage, logout, firebaseApp, appAuth } from '../../services/firebase'
+import {
+	appFirestore,
+	appStorage,
+	logout,
+	appAuth,
+	verifyUsername,
+	firebaseApp,
+	changeEmail
+} from '../../services/firebase'
 import { getProfileDocument } from '../../constants/firestorePath'
 
 const Profile = () => {
 	const router = useRouter()
 	//UI Stuff
 	const [ loading, setLoading ] = useState<boolean>(true)
+	const [ locationLoading, setLocationLoading ] = useState<boolean>(false)
 	const [ shouldReload, setShouldReload ] = useState<number>(0)
 	const [ pictureLoading, setPictureLoading ] = useState<boolean>(false)
 
 	//Error handling
 	const [ errors, setErrors ] = useState({ tagContainSpace: false })
 	const [ confirmation, setConfirmation ] = useState({ error: false, show: false, message: '' })
-	const [ wizard, setWizard ] = useState({ show: false, title: '', message: '', confirm: () => {} })
+	const [ wizard, setWizard ] = useState({
+		show: false,
+		title: '',
+		message: '',
+		showTrashIcon: true,
+		btnMessage: '',
+		confirm: () => {}
+	})
+	const [ usernameValid, setUsernameValid ] = useState<boolean>(true)
 
 	//User data
 	const [ user, setUser ] = useState<IUser>(getDefaultUser())
@@ -41,7 +58,6 @@ const Profile = () => {
 				}
 				setUser(userData)
 
-				console.log(user)
 				switch (user.picture) {
 					case 'google':
 						setUserPicture(user.g_picture)
@@ -79,6 +95,40 @@ const Profile = () => {
 		},
 		[ newTag ]
 	)
+
+	useEffect(() => {
+		setLocationLoading(true)
+		const setLocation = (location) => {
+			fetch(
+				`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location.coords.latitude},${location.coords
+					.longitude}&key=AIzaSyAd8ZceCxCWtGT8frxXc9BVpeCKpUIpu6w`
+			)
+				.then((data) => {
+					return data.json()
+				})
+				.then((data) => {
+					const address_components = data.results[0].address_components
+
+					const city = find(address_components, (component) => component.types.includes('locality'))
+					const region = find(address_components, (component) =>
+						component.types.includes('administrative_area_level_1')
+					)
+					const country = find(address_components, (component) => component.types.includes('country'))
+
+					setUser((prevState) => ({
+						...prevState,
+						location: `${city.long_name}, ${region.long_name}, ${country.long_name}`
+					}))
+					setLocationLoading(false)
+				})
+		}
+
+		if (!!!user.location) {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(setLocation)
+			}
+		}
+	}, [])
 
 	const uploadFile = async (fileList: FileList) => {
 		if (fileList[0]) {
@@ -136,12 +186,49 @@ const Profile = () => {
 		setTags(remove(tags, (item) => item !== tagToRemove))
 	}
 
+	const handleBlurUsername = async (e: ChangeEvent<HTMLInputElement>) => {
+		const input = e.currentTarget as HTMLInputElement
+		if (input.value !== (await getUserSnapshot()).data().username) {
+			setUsernameValid(await verifyUsername(input.value))
+		} else {
+			console.log('egal')
+		}
+	}
+
 	const handleSubmit = async () => {
 		setLoading(true)
-		await appFirestore().doc(getProfileDocument(user.email)).update({ ...user })
+
+		const currentEmail = (await getUserSnapshot()).data().email
+
+		if (user.email !== currentEmail) {
+			setLoading(false)
+			return setWizard({
+				show: true,
+				title: 'Vous avez changé votre courriel.',
+				message: 'Puisque vous avez changé votre courriel, vous devrez vous reconnecter.',
+				showTrashIcon: false,
+				btnMessage: 'Changer mon courriel',
+				confirm: () => handleChangeEmail(currentEmail)
+			})
+		} else {
+			await appFirestore().doc(getProfileDocument(currentEmail)).update({ ...user })
+		}
 
 		setLoading(false)
 		setConfirmation({ error: false, show: true, message: 'Modifications apportées' })
+	}
+
+	const handleChangeEmail = async (oldEmail: string) => {
+		setLoading(true)
+		// const collProjets = await appFirestore().collection('users').doc(oldEmail).collection('')
+
+		// await appFirestore().collection('users').doc(oldEmail).delete()
+		// await appFirestore().collection('users').doc(user.email).set({ ...user })
+		// await firebaseApp().auth().currentUser.updateEmail(user.email)
+		await changeEmail(user, oldEmail)
+
+		setLoading(false)
+		logout()
 	}
 
 	const submitNewPictureMode = async (type: string) => {
@@ -155,6 +242,8 @@ const Profile = () => {
 			show: true,
 			title: 'Voulez-vous vraiment supprimer votre compte?',
 			message: 'Toutes vos données associées, ainsi que vos projets seront supprimées et non récupérables.',
+			showTrashIcon: true,
+			btnMessage: 'Supprimer',
 			confirm: deleteAccount
 		})
 	}
@@ -182,6 +271,7 @@ const Profile = () => {
 					title={wizard.title}
 					message={wizard.message}
 					confirm={wizard.confirm}
+					showTrashIcon={wizard.showTrashIcon}
 					close={() => setWizard((prevState) => ({ ...prevState, show: false }))}
 				/>
 			) : null}
@@ -202,19 +292,38 @@ const Profile = () => {
 						<Input
 							label='Mon nom d&#39;utilisateur'
 							name='username'
+							error={
+								!usernameValid && <span className='error'>Ce nom d'utilisateur est déjà utilisé.</span>
+							}
 							value={user.username}
 							onChange={handleChange}
+							onBlur={handleBlurUsername}
 						/>
+
+						<Input label='Mon courriel' name='email' value={user.email} onChange={handleChange} />
+
 						<Input label='Mon prénom' name='name' value={user.name} onChange={handleChange} />
 						<Input label='Mon nom' name='family_name' value={user.family_name} onChange={handleChange} />
 						<Input
 							label='Ma description'
 							name='description'
 							type='textarea'
-							maxLength={500}
+							maxLength={800}
 							value={user.description}
 							onChange={handleChange}
 						/>
+
+						<div className='locationInput'>
+							<Input
+								label='Mon emplacement'
+								name='location'
+								disabled={locationLoading}
+								value={user.location}
+								onChange={handleChange}
+							/>
+							{locationLoading && <Loader size={10} color='#1a73e8' />}
+						</div>
+
 						<Input label='Mon poste' name='poste' value={user.poste} onChange={handleChange} />
 						<Input label='Mon employeur' name='employeur' value={user.employeur} onChange={handleChange} />
 					</div>
