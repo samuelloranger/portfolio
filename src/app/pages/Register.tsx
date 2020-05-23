@@ -29,7 +29,14 @@ interface IProps {
 
 const register = ({ query }) => {
 	const router = useRouter()
-	const [ user, setUser ] = useState<IUser>({ username: '', name: '', family_name: '', email: '', picture: 'custom' })
+	const [ user, setUser ] = useState<IUser>({
+		username: '',
+		name: '',
+		family_name: '',
+		email: '',
+		picture: 'none',
+		dateCreated: new Date().toString()
+	})
 	const [ usernameValid, setUsernameValid ] = useState<boolean>(true)
 	const [ emailValid, setEmailValid ] = useState<boolean>(true)
 	const [ password, setPassword ] = useState<string>('')

@@ -32,3 +32,24 @@ body {
 .p-relative {
 	position: relative;
 }
+
+.color {
+	&-blue {
+		color: $blue;
+	}
+
+	&-grey {
+		color: $darkGray;
+	}
+}
+
+.text {
+	&-center {
+		text-align: center;
+		display: block;
+	}
+}
+
+.pointer {
+	cursor: pointer;
+}

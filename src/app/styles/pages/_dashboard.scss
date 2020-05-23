@@ -44,6 +44,14 @@
 		}
 	}
 
+	&__home {
+		&__userInfos {
+			@include tablet {
+				max-width: 45%;
+			}
+		}
+	}
+
 	&__content {
 		@include tablet {
 			margin-left: 275px;
@@ -394,6 +402,23 @@
 
 						p {
 							margin-top: 0;
+						}
+
+						.skillIcon {
+							&__uploadZone {
+								max-width: 100px;
+								position: relative;
+
+								img {
+									width: 100%;
+								}
+
+								.loader {
+									position: absolute;
+									right: -40px;
+									top: 0;
+								}
+							}
 						}
 
 						.projectImages {

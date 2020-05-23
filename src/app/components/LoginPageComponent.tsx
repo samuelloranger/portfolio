@@ -30,7 +30,7 @@ const LoginPageComponent = ({ query }: IProps) => {
 			error_message: ''
 		}
 	})
-	const [ rememberMe, setRememberMe ] = useState<boolean>(false)
+	const [ rememberMe, setRememberMe ] = useState<boolean>(true)
 	const [ passwordChangeRequest, setPasswordChangeRequest ] = useState<boolean>(false)
 	const [ passwordChanged, setPasswordChanged ] = useState<boolean>(false)
 
@@ -99,10 +99,9 @@ const LoginPageComponent = ({ query }: IProps) => {
 	const handleSubmit = async () => {
 		setLoading(true)
 		if (validateEmail()) {
-			let persistance: any = rememberMe ? 'local' : 'none'
+			let persistance: 'local' | 'session' | 'none' = rememberMe ? 'local' : 'session'
 			const login = await loginUser(user.email, user.password, persistance)
 
-			console.log(login)
 			if (login === true) {
 				setLoading(false)
 				return

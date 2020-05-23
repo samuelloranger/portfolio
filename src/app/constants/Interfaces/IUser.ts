@@ -11,6 +11,7 @@ export default interface IUser {
 	readonly location?: string
 	readonly poste?: string
 	readonly employeur?: string
+	readonly dateCreated?: string
 }
 
 export const getDefaultUser = (): IUser => {

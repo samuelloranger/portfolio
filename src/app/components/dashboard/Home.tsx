@@ -71,8 +71,8 @@ const Home = () => {
 					<h2>Mon portolio</h2>
 				</div>
 
-				<div className='dashboard__form__content pt-15'>
-					<div className='pl-25'>
+				<div className='dashboard__form__content dashboard__home pt-15'>
+					<div className='pl-25 dashboard__home__userInfos'>
 						<h3 className='titleSection'>Mon profil</h3>
 						<p>
 							<b>Mon nom d'utilisateur: </b>

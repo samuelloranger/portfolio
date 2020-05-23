@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ChangeEvent } from 'react'
+import React, { useEffect, useState, ChangeEvent, useContext } from 'react'
 import { useRouter } from 'next/router'
 
 //Librairies
@@ -7,22 +7,18 @@ import { remove, find } from 'lodash'
 //Context
 import IUser, { getDefaultUser } from '../../constants/Interfaces/IUser'
 import { getUserSnapshot } from '../../contexts/UserAuthContext/services'
+import UserAuthContext from '../../contexts/UserAuthContext/UserAuthContext'
 
 //Components
 import { Input, Loader, Button, PopUpConfirmation, Wizard } from '..'
-import {
-	appFirestore,
-	appStorage,
-	logout,
-	appAuth,
-	verifyUsername,
-	firebaseApp,
-	changeEmail
-} from '../../services/firebase'
+import { appFirestore, appStorage, logout, appAuth, verifyUsername, changeEmail } from '../../services/firebase'
 import { getProfileDocument } from '../../constants/firestorePath'
 
 const Profile = () => {
 	const router = useRouter()
+
+	const { userData } = useContext(UserAuthContext)
+
 	//UI Stuff
 	const [ loading, setLoading ] = useState<boolean>(true)
 	const [ locationLoading, setLocationLoading ] = useState<boolean>(false)
@@ -51,29 +47,13 @@ const Profile = () => {
 	useEffect(
 		() => {
 			const getData = async () => {
-				const userData = (await getUserSnapshot()).data()
 				if (!!!userData) {
 					setShouldReload(Date.now())
 					return
 				}
 				setUser(userData)
 
-				switch (user.picture) {
-					case 'google':
-						setUserPicture(user.g_picture)
-						break
-					case 'facebook':
-						setUserPicture(user.f_picture)
-						break
-					case 'custom':
-						const customPicture = await appStorage().ref(user.c_picture).getDownloadURL()
-						setUserPicture(customPicture)
-						setPictureLoading(false)
-						break
-					case 'none':
-						setUserPicture('/img/userProfileImg.png')
-						break
-				}
+				setUserPicture(userData.c_picture)
 
 				const tagsRefs = await appFirestore().collection('users').doc(userData.email).collection('tags').get()
 				setTags(
@@ -86,7 +66,7 @@ const Profile = () => {
 
 			getData()
 		},
-		[ user.picture, user.c_picture, shouldReload ]
+		[ shouldReload, userData ]
 	)
 
 	useEffect(
@@ -96,8 +76,9 @@ const Profile = () => {
 		[ newTag ]
 	)
 
-	useEffect(() => {
+	const getCurrentLocation = () => {
 		setLocationLoading(true)
+
 		const setLocation = (location) => {
 			fetch(
 				`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location.coords.latitude},${location.coords
@@ -123,12 +104,10 @@ const Profile = () => {
 				})
 		}
 
-		if (!!!user.location) {
-			if (navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(setLocation)
-			}
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(setLocation)
 		}
-	}, [])
+	}
 
 	const uploadFile = async (fileList: FileList) => {
 		if (fileList[0]) {
@@ -141,13 +120,13 @@ const Profile = () => {
 
 			upload.on('state_changed', async () => {
 				const fileUrl = await upload.snapshot.ref.getDownloadURL()
-				setUser((prevState) => ({
-					...prevState,
-					picture: 'custom',
-					c_picture: `users/${file.name}`
-				}))
-				setShouldReload(Date.now())
 				setUserPicture(fileUrl)
+
+				await appFirestore()
+					.doc(getProfileDocument(user.email))
+					.update({ picture: 'custom', c_picture: fileUrl })
+				setShouldReload(Date.now())
+				setPictureLoading(false)
 			})
 		}
 	}
@@ -190,8 +169,6 @@ const Profile = () => {
 		const input = e.currentTarget as HTMLInputElement
 		if (input.value !== (await getUserSnapshot()).data().username) {
 			setUsernameValid(await verifyUsername(input.value))
-		} else {
-			console.log('egal')
 		}
 	}
 
@@ -220,11 +197,6 @@ const Profile = () => {
 
 	const handleChangeEmail = async (oldEmail: string) => {
 		setLoading(true)
-		// const collProjets = await appFirestore().collection('users').doc(oldEmail).collection('')
-
-		// await appFirestore().collection('users').doc(oldEmail).delete()
-		// await appFirestore().collection('users').doc(user.email).set({ ...user })
-		// await firebaseApp().auth().currentUser.updateEmail(user.email)
 		await changeEmail(user, oldEmail)
 
 		setLoading(false)
@@ -250,7 +222,31 @@ const Profile = () => {
 
 	const deleteAccount = async () => {
 		setLoading(true)
-		await appFirestore().doc(getProfileDocument(user.email)).delete()
+
+		const usersColl = appFirestore().collection('users')
+		const collProjets = await usersColl.doc(user.email).collection('projects').get()
+		const collSkills = await usersColl.doc(user.email).collection('skills').get()
+		const collTags = await usersColl.doc(user.email).collection('tags').get()
+
+		try {
+			await usersColl.doc(user.email).set({ ...user })
+
+			collProjets.docs.map(async (project) => {
+				await usersColl.doc(user.email).collection('projects').doc(project.id).delete()
+			})
+
+			collTags.docs.map(async (tag) => {
+				await usersColl.doc(user.email).collection('tags').doc(tag.id).delete()
+			})
+
+			collSkills.docs.map(async (skill) => {
+				await usersColl.doc(user.email).collection('skills').doc(skill.id).delete()
+			})
+
+			await appFirestore().doc(getProfileDocument(user.email)).delete()
+		} catch (err) {
+			return false
+		}
 		await appAuth().currentUser.delete()
 		await logout()
 		router.push('/')
@@ -323,6 +319,9 @@ const Profile = () => {
 							/>
 							{locationLoading && <Loader size={10} color='#1a73e8' />}
 						</div>
+						<span className='pl-25 mt-25 color-blue pointer' onClick={getCurrentLocation}>
+							Utiliser ma localisation courante
+						</span>
 
 						<Input label='Mon poste' name='poste' value={user.poste} onChange={handleChange} />
 						<Input label='Mon employeur' name='employeur' value={user.employeur} onChange={handleChange} />

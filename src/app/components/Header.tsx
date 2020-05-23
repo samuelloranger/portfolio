@@ -13,7 +13,7 @@ import useWindowSize from '../constants/Hooks/useWindow'
 
 const Header = () => {
 	const { width } = useWindowSize()
-	const { userSnapshot } = useContext(UserAuthContext)
+	const { userData, userSnapshot } = useContext(UserAuthContext)
 
 	const [ state, setState ] = useState({
 		loading: true,
@@ -25,13 +25,17 @@ const Header = () => {
 
 	useEffect(
 		() => {
+			setState((prevState) => ({
+				...prevState,
+				loading: true
+			}))
 			userAuthStateListener(userListener)
 		},
-		[ userSnapshot ]
+		[ userSnapshot, userData ]
 	)
 
 	const userListener = async (user: any) => {
-		if (user) {
+		if (user && userData) {
 			setState((prevState) => ({
 				...prevState,
 				userConnected: true
@@ -41,15 +45,18 @@ const Header = () => {
 
 			setState((prevState) => ({
 				...prevState,
+				loading: false,
 				userPicture: profilePicture,
-				username: userSnapshot ? userSnapshot.data().username : ''
-			}))
-
-			setState((prevState) => ({
-				...prevState,
-				loading: false
+				username: userData.username
 			}))
 		}
+	}
+
+	const setUserData = async () => {
+		setState((prevState) => ({
+			...prevState,
+			loading: false
+		}))
 	}
 
 	const handleDisconnect = async () => {

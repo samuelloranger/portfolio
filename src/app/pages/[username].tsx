@@ -1,9 +1,18 @@
 import { useState, useEffect } from 'react'
+import { take } from 'lodash'
+import { NextSeo } from 'next-seo'
+
+//Interfaces
 import IUser from '../constants/Interfaces/IUser'
 import IProject from '../constants/Interfaces/IProject'
 import ISkill from '../constants/Interfaces/ISkill'
-import { appFirestore, appStorage } from '../services/firebase'
+
+//Services
+import { appFirestore } from '../services/firebase'
+
+//Components
 import Main from '../layouts/Main'
+import Slider from '../components/Slider'
 
 interface IProps {
 	readonly user?: IUser
@@ -13,7 +22,7 @@ interface IProps {
 	readonly notFound: boolean
 }
 
-const portfolio = ({ user, tags, projects, skills, notFound }) => {
+const portfolio = ({ user, tags, projects, skills, notFound }: IProps) => {
 	const [ userPicture, setUserPicture ] = useState<string>('')
 
 	useEffect(() => {
@@ -26,8 +35,7 @@ const portfolio = ({ user, tags, projects, skills, notFound }) => {
 					setUserPicture(user.f_picture)
 					break
 				case 'custom':
-					const customPicture = await appStorage().ref(user.c_picture).getDownloadURL()
-					setUserPicture(customPicture)
+					setUserPicture(user.c_picture)
 					break
 				case 'none':
 					setUserPicture('/img/userProfileImg.png')
@@ -40,6 +48,26 @@ const portfolio = ({ user, tags, projects, skills, notFound }) => {
 	return (
 		<Main>
 			<div className='portfolio container pt-25'>
+				<NextSeo
+					title={`${user.name} ${user.family_name} | Portfogram`}
+					description='Regardez mon portfolio sur Portfogram!'
+					canonical={`https://samuelloranger.com/${user.username}`}
+					openGraph={{
+						url: 'https://samuelloranger.com/',
+						title: 'Portfogram',
+						description: 'Regardez mon portfolio sur Portfogram!',
+						images: [
+							{
+								url: '/og-image.jpg',
+								width: 800,
+								height: 600,
+								alt: 'Portfogram | Créez un portfolio simple, mais efficace.'
+							}
+						],
+						site_name: 'Portfogram'
+					}}
+				/>
+
 				<div className='portfolio__userInfos'>
 					<div className='portfolio__userInfos__header'>
 						<img src={userPicture} alt='' className='picture shadow' />
@@ -58,14 +86,22 @@ const portfolio = ({ user, tags, projects, skills, notFound }) => {
 								{user.employeur && user.employeur}
 							</p>
 						) : null}
-						<p className='info'>
-							<img className='info__icon' src='/icons/pin.svg' alt='' />Québec, Canada
-						</p>
+						{user.location && (
+							<p className='info'>
+								<img className='info__icon' src='/icons/pin.svg' alt='' />
+								{user.location}
+							</p>
+						)}
+
 						{user.description && <p className='info__description'>{user.description}</p>}
 
 						<p className='tags'>
-							{tags.map((tag: string) => {
-								return <span className='tags__tag'>#{tag}</span>
+							{tags.map((tag: string, key) => {
+								return (
+									<span key={key} className='tags__tag'>
+										#{tag}
+									</span>
+								)
 							})}
 						</p>
 					</div>
@@ -88,8 +124,13 @@ const portfolio = ({ user, tags, projects, skills, notFound }) => {
 					{projects &&
 						projects.map((project: IProject, key: number) => {
 							return (
-								<div key={key}>
-									<h3>{project.name}</h3>
+								<div className='portfolio__projects__project' key={key}>
+									<span className='ancre' id={project.id.toString()} />
+									<Slider images={take(project.images, 5)} />
+									<div className='projectInfos'>
+										<h3 className='title'>{project.name}</h3>
+										<p className='description'>{project.description}</p>
+									</div>
 								</div>
 							)
 						})}

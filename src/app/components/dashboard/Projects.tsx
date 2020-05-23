@@ -23,7 +23,6 @@ const Projects = ({ query }: IProps) => {
 	const router = useRouter()
 	//UI Stuff
 	const [ loading, setLoading ] = useState<boolean>(true)
-	const [ shouldReload, setShouldReload ] = useState<number>(0)
 	const [ pictureLoading, setPictureLoading ] = useState<boolean>(false)
 
 	//Error handling
@@ -45,32 +44,36 @@ const Projects = ({ query }: IProps) => {
 
 	useEffect(
 		() => {
+			let unSubscribedCollectionProjects
+
 			const getData = async () => {
 				const userData = (await getUserSnapshot()).data()
-				if (!!!userData) {
-					setShouldReload(Date.now())
-					return
-				}
 
-				const collectionProjects = await appFirestore()
+				unSubscribedCollectionProjects = appFirestore()
 					.doc(getProfileDocument(userData.email))
 					.collection(`projects`)
-					.get()
-
-				setProjects(
-					collectionProjects.docs.map((doc) => {
-						return { id: Number(doc.id), ...doc.data(), checked: false } as IProject
-					})
-				)
+					.onSnapshot(setProjectsData)
 
 				setUser(userData)
 				setLoading(false)
 			}
 
 			getData()
+
+			return () => {
+				unSubscribedCollectionProjects()
+			}
 		},
-		[ user.picture, user.c_picture, shouldReload ]
+		[ user.picture, user.c_picture ]
 	)
+
+	const setProjectsData = async (collectionProjectsSnap: firebase.firestore.QuerySnapshot) => {
+		setProjects(
+			collectionProjectsSnap.docs.map((doc) => {
+				return { id: Number(doc.id), ...doc.data(), checked: false } as IProject
+			})
+		)
+	}
 
 	useEffect(
 		() => {
@@ -168,12 +171,12 @@ const Projects = ({ query }: IProps) => {
 		const nbrDeleted = getProjectsChecked().length
 		try {
 			getProjectsChecked().forEach(async (project) => {
-				appFirestore().doc(getProfileDocument(user.email)).collection(`projects`).doc(project.name).delete()
+				appFirestore()
+					.doc(getProfileDocument(user.email))
+					.collection(`projects`)
+					.doc(project.id.toString())
+					.delete()
 			})
-
-			console.log('test')
-
-			setShouldReload(Date.now())
 
 			setConfirmation((prevState) => ({
 				...prevState,
@@ -234,12 +237,15 @@ const Projects = ({ query }: IProps) => {
 					.doc(getProfileDocument(user.email))
 					.collection(`projects`)
 					.doc(newProject.id.toString())
-					.update({
-						id: newProject.id,
-						name: newProject.name,
-						description: newProject.description,
-						images: newProject.images
-					})
+					.set(
+						{
+							id: newProject.id,
+							name: newProject.name,
+							description: newProject.description,
+							images: newProject.images
+						},
+						{ merge: true }
+					)
 
 				setEditMode(false)
 
@@ -270,7 +276,6 @@ const Projects = ({ query }: IProps) => {
 			}
 
 			setShowForm(false)
-			setShouldReload(Date.now())
 		} else {
 			setLoading(false)
 		}
@@ -421,6 +426,7 @@ const Projects = ({ query }: IProps) => {
 									className='a'
 									onClick={() => {
 										setShowForm(false)
+										setEditMode(false)
 										setNewProject(getDefaultProject())
 									}}>
 									Annuler

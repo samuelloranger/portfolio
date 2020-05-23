@@ -23,7 +23,6 @@ const Skills = ({ query }: IProps) => {
 	const router = useRouter()
 	//UI Stuff
 	const [ loading, setLoading ] = useState<boolean>(true)
-	const [ shouldReload, setShouldReload ] = useState<number>(0)
 	const [ pictureLoading, setPictureLoading ] = useState<boolean>(false)
 
 	//Error handling
@@ -45,32 +44,35 @@ const Skills = ({ query }: IProps) => {
 
 	useEffect(
 		() => {
+			let unSubscribedCollectionSkills
+
 			const getData = async () => {
 				const userData = (await getUserSnapshot()).data()
-				if (!!!userData) {
-					setShouldReload(Date.now())
-					return
-				}
+				setUser(userData)
 
-				const collectionSkills = await appFirestore()
+				unSubscribedCollectionSkills = appFirestore()
 					.doc(getProfileDocument(userData.email))
 					.collection(`skills`)
-					.get()
-
-				setSkills(
-					collectionSkills.docs.map((doc) => {
-						return { id: Number(doc.id), ...doc.data(), checked: false } as ISkill
-					})
-				)
-
-				setUser(userData)
-				setLoading(false)
+					.onSnapshot(setSkillsData)
 			}
 
 			getData()
+
+			return () => {
+				unSubscribedCollectionSkills()
+			}
 		},
-		[ user.picture, user.c_picture, shouldReload ]
+		[ user.picture, user.c_picture ]
 	)
+
+	const setSkillsData = async (colectionSkillsSnap: firebase.firestore.QuerySnapshot) => {
+		setSkills(
+			colectionSkillsSnap.docs.map((doc) => {
+				return { id: Number(doc.id), ...doc.data(), checked: false } as ISkill
+			})
+		)
+		setLoading(false)
+	}
 
 	useEffect(
 		() => {
@@ -101,7 +103,6 @@ const Skills = ({ query }: IProps) => {
 			const imgRef = appStorage().ref().child(`users/${user.email}/skill/${file.name}`)
 
 			if (file.type !== 'image/svg+xml') {
-				console.log('fileformaterror')
 				setErrors((prevState) => ({ ...prevState, skillIconFormat: true }))
 				setPictureLoading(false)
 			} else {
@@ -159,8 +160,6 @@ const Skills = ({ query }: IProps) => {
 				await appFirestore().doc(getProfileDocument(user.email)).collection(`skills`).doc(skill.name).delete()
 			})
 
-			setShouldReload(Date.now())
-
 			setConfirmation((prevState) => ({
 				...prevState,
 				show: true,
@@ -214,7 +213,7 @@ const Skills = ({ query }: IProps) => {
 
 		if (!verifyErrors()) {
 			if (editMode) {
-				const set = await appFirestore()
+				await appFirestore()
 					.doc(getProfileDocument(user.email))
 					.collection(`skills`)
 					.doc(newSkill.id.toString())
@@ -235,7 +234,7 @@ const Skills = ({ query }: IProps) => {
 
 				setNewSkill(getDefaultSkill())
 			} else {
-				const set = await appFirestore()
+				await appFirestore()
 					.doc(getProfileDocument(user.email))
 					.collection(`skills`)
 					.doc(Date.now().toString())
@@ -254,7 +253,6 @@ const Skills = ({ query }: IProps) => {
 			}
 
 			setShowForm(false)
-			setShouldReload(Date.now())
 		} else {
 			setLoading(false)
 		}
@@ -351,8 +349,8 @@ const Skills = ({ query }: IProps) => {
 									) : null}
 								</div>
 								<div className='form__fields__right'>
-									<div className='inputField pl-25 pr-25 pt-25'>
-										<label htmlFor='skillImg'>Icône de la compétence</label>
+									<div className='skillImg inputField pl-25 pr-25 pt-25'>
+										<label htmlFor='skillIcon'>Icône de la compétence</label>
 										<p>
 											Nous vous conseillons de téléverser un icône en noir en blanc, avec un filet
 											mince. <strong>Fichiers SVG seulement.</strong>
@@ -366,8 +364,13 @@ const Skills = ({ query }: IProps) => {
 													setupImgUpload((e.currentTarget as HTMLInputElement)
 														.files as FileList)}
 											/>
-											<div className='inputField__uploadZone'>
+											<div className='skillIcon__uploadZone inputField__uploadZone'>
 												<img src={newSkill.iconUrl} />
+												{pictureLoading && (
+													<div className='loader'>
+														<Loader size={16} color='#1a73e8' />
+													</div>
+												)}
 											</div>
 										</label>
 

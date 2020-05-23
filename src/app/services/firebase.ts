@@ -98,14 +98,14 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 
 		if (type === 'google') {
 			const googleProfile = login.additionalUserInfo.profile
-			console.log(googleProfile)
 
 			await appFirestore().doc(getProfileDocument(login.user.email as string)).set({
 				name: googleProfile.given_name,
 				family_name: googleProfile.family_name,
 				email: googleProfile.email,
 				picture: 'google',
-				g_picture: googleProfile.picture
+				g_picture: googleProfile.picture,
+				dateCreated: new Date().toString()
 			})
 
 			Router.push('/register?action=updateUsername')
@@ -117,7 +117,8 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 				family_name: facebookProfile.last_name,
 				email: facebookProfile.email,
 				picture: 'facebook',
-				f_picture: facebookProfile.picture.data.url
+				f_picture: facebookProfile.picture.data.url,
+				dateCreated: new Date().toString()
 			})
 
 			Router.push('/register?action=updateUsername')
@@ -136,8 +137,9 @@ export const getProfilePicture = async (email = '') => {
 		case 'facebook':
 			return userData.f_picture ? userData.f_picture : basicImg
 		case 'custom':
-			const customPicture = await appStorage().ref(userData.c_picture).getDownloadURL()
-			return customPicture
+			// const customPicture = await appStorage().ref(userData.c_picture).getDownloadURL()
+			// return customPicture
+			return userData.c_picture ? userData.c_picture : basicImg
 		case 'none':
 			return basicImg
 	}
@@ -206,7 +208,6 @@ export const logout = async (): Promise<boolean> => {
  */
 export const registerUser = async (user: IUser, password: string): Promise<boolean | string> => {
 	try {
-		console.log(user.email)
 		const registerContext = await firebaseApp().auth().createUserWithEmailAndPassword(user.email, password)
 
 		if (!!!registerContext.user) {
