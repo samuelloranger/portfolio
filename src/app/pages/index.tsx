@@ -90,7 +90,6 @@ const index = ({ users, projects }: IProps) => {
 								(project) => new Date(project.dateCreated),
 								'desc'
 							).map((project, key) => {
-								console.log(project.dateCreated)
 								return (
 									<Link href={`/${project.author.username}#${project.id}`} key={key}>
 										<a className='grid__item'>
