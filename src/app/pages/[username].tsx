@@ -38,7 +38,7 @@ const portfolio = ({ user, tags, projects, skills, notFound }: IProps) => {
 					setUserPicture(user.c_picture)
 					break
 				case 'none':
-					setUserPicture('/img/userProfileImg.png')
+					setUserPicture('/img/userProfileImg.svg')
 					break
 			}
 		}

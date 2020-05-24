@@ -276,6 +276,7 @@ const Projects = ({ query }: IProps) => {
 			}
 
 			setShowForm(false)
+			setLoading(false)
 		} else {
 			setLoading(false)
 		}

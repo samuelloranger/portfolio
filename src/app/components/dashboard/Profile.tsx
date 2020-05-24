@@ -296,7 +296,20 @@ const Profile = () => {
 							onBlur={handleBlurUsername}
 						/>
 
-						<Input label='Mon courriel' name='email' value={user.email} onChange={handleChange} />
+						{console.log(user.accountType)}
+						<Input
+							label='Mon courriel'
+							name='email'
+							disabled={user.accountType !== 'custom'}
+							value={user.email}
+							onChange={handleChange}
+						/>
+						{user.accountType !== 'custom' ? (
+							<p className='pl-25'>
+								Vous ne pouvez pas changer d'adresse courriel car votre compte est lié à votre compte
+								{user.accountType === 'google' ? ' Google' : ' Facebook'}.
+							</p>
+						) : null}
 
 						<Input label='Mon prénom' name='name' value={user.name} onChange={handleChange} />
 						<Input label='Mon nom' name='family_name' value={user.family_name} onChange={handleChange} />

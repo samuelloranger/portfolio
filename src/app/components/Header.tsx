@@ -76,7 +76,7 @@ const Header = () => {
 				<div className='header__container container'>
 					<Link href='/'>
 						<a className='header__container__logoLink'>
-							<h1 className='header__container__logo'>PORTFOGRAM</h1>
+							<img src='/portfogram-logo.svg' alt='Portfogram' className='header__container__logo' />
 						</a>
 					</Link>
 
@@ -167,7 +167,8 @@ const Header = () => {
 					<button
 						className={`hamburger hamburger--slider${state.menuActive ? ' is-active' : ''}`}
 						type='button'
-						onClick={() => setState((prevState) => ({ ...prevState, menuActive: !state.menuActive }))}>
+						onClick={() => setState((prevState) => ({ ...prevState, menuActive: !state.menuActive }))}
+						aria-label='Basculer le menu mobile'>
 						<span className='hamburger-box'>
 							<span className='hamburger-inner' />
 						</span>

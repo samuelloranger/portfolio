@@ -12,6 +12,7 @@ export default interface IUser {
 	readonly poste?: string
 	readonly employeur?: string
 	readonly dateCreated?: string
+	readonly accountType?: string
 }
 
 export const getDefaultUser = (): IUser => {

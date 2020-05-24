@@ -8,7 +8,7 @@ class MyDocument extends Document {
 
 	render() {
 		return (
-			<Html>
+			<Html lang='fr'>
 				<Head>
 					<link rel='apple-touch-icon' sizes='57x57' href='/favicon/apple-icon-57x57.png' />
 					<link rel='apple-touch-icon' sizes='60x60' href='/favicon/apple-icon-60x60.png' />
@@ -29,15 +29,6 @@ class MyDocument extends Document {
 					<meta name='theme-color' content='#ffffff' />
 				</Head>
 				<body>
-					{/* <noscript>
-						<iframe
-							src='https://www.googletagmanager.com/ns.html?id=GTM-KJ5FHKR'
-							height='0'
-							width='0'
-							style={{ display: 'none', visibility: 'hidden' }}
-						/>
-					</noscript> */}
-
 					<Main />
 					<NextScript />
 				</body>

@@ -22,6 +22,7 @@
 	}
 
 	&__container {
+		height: 100%;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -29,15 +30,14 @@
 		position: relative;
 
 		&__logo {
-			color: $orange;
-			@include fontSize(36px);
-
-			@media (min-width: 375px) {
-				@include fontSize(42px);
-			}
-			line-height: 72px;
+			width: 100%;
 
 			&Link {
+				display: flex;
+				align-items: center;
+				max-width: 285px;
+				height: 100%;
+
 				&:hover {
 					text-decoration: none;
 				}

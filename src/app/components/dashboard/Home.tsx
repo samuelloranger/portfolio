@@ -83,7 +83,7 @@ const Home = () => {
 							{user.name} {user.family_name}
 						</p>
 						<p>
-							<b>Mon nom courriel: </b>
+							<b>Mon courriel: </b>
 							{user.email}
 						</p>
 						<p>

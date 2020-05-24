@@ -105,7 +105,8 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 				email: googleProfile.email,
 				picture: 'google',
 				g_picture: googleProfile.picture,
-				dateCreated: new Date().toString()
+				dateCreated: new Date().toString(),
+				accountType: 'google'
 			})
 
 			Router.push('/register?action=updateUsername')
@@ -118,7 +119,8 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 				email: facebookProfile.email,
 				picture: 'facebook',
 				f_picture: facebookProfile.picture.data.url,
-				dateCreated: new Date().toString()
+				dateCreated: new Date().toString(),
+				accountType: 'facebook'
 			})
 
 			Router.push('/register?action=updateUsername')
@@ -129,7 +131,7 @@ export const loginWithSocial = async (type: string): Promise<string | boolean> =
 export const getProfilePicture = async (email = '') => {
 	const userData = (await getUserSnapshot(email)).data()
 	if (!!!userData) return ''
-	const basicImg = '/img/userProfileImg.png'
+	const basicImg = '/img/userProfileImg.svg'
 
 	switch (userData.picture) {
 		case 'google':

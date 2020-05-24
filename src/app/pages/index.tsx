@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, Fragment } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import Link from 'next/link'
 
 import { take, orderBy } from 'lodash'
@@ -14,19 +14,52 @@ import IProject from '../constants/Interfaces/IProject'
 
 //Components
 import Main from '../layouts/Main'
+import Loader from 'react-spinners/ClipLoader'
 
-interface IProps {
-	readonly users: IUser[]
-	readonly projects: IProject[]
-}
+// interface IProps {
+// 	readonly users: IUser[]
+// 	readonly projects: IProject[]
+// }
 
-const index = ({ users, projects }: IProps) => {
+// const index = ({ users, projects }: IProps) => {
+const index = () => {
 	const { userSnapshot } = useContext(UserAuthContext)
 	const [ userConnected, setUserConnected ] = useState<boolean>(false)
+
+	const [ loading, setLoading ] = useState<boolean>(true)
+
+	const [ users, setUsers ] = useState<IUser[]>([])
+	const [ projects, setProjects ] = useState<IProject[]>([])
 
 	useEffect(
 		() => {
 			userAuthStateListener(userListener)
+
+			const getContent = async () => {
+				const usersColl = await appFirestore().collection('users').orderBy('dateCreated', 'asc').get()
+
+				const users = take(usersColl.docs, 8).map((user) => {
+					return user.data() as IUser
+				})
+				setUsers(users)
+
+				const projectsCollections: IProject[] = []
+				for (const user of usersColl.docs) {
+					const userProjectsColl = await user.ref.collection('projects').get()
+					userProjectsColl.docs.map((project) => {
+						projectsCollections.push({
+							id: Number(project.id),
+							...project.data(),
+							author: user.data()
+						} as IProject)
+					})
+				}
+				setProjects(projectsCollections)
+
+				setLoading(false)
+			}
+
+			getContent()
 		},
 		[ userSnapshot ]
 	)
@@ -81,82 +114,89 @@ const index = ({ users, projects }: IProps) => {
 						</div>
 					</div>
 				) : null}
-				<div className='home__content'>
-					<div className='home__content__projects'>
-						<h2 className='title'>Les derniers projets</h2>
-						<div className='grid'>
-							{orderBy(
-								projects,
-								(project) => new Date(project.dateCreated),
-								'desc'
-							).map((project, key) => {
-								return (
-									<Link href={`/${project.author.username}#${project.id}`} key={key}>
-										<a className='grid__item'>
-											<h3 className='grid__item__name'>{project.name}</h3>
-											<img
-												className='grid__item__img'
-												src={project.images[0]}
-												alt={`Couverture du projet ${project.name} par ${project.author
-													.name} ${project.author.family_name}`}
-											/>
-										</a>
-									</Link>
-								)
-							})}
+
+				{loading ? (
+					<div className='home__loader'>
+						<Loader color='#1a73e8' size={64} />
+					</div>
+				) : (
+					<div className='home__content'>
+						<div className='home__content__projects'>
+							<h2 className='title'>Les derniers projets</h2>
+							<div className='grid'>
+								{orderBy(
+									projects,
+									(project) => new Date(project.dateCreated),
+									'desc'
+								).map((project, key) => {
+									return (
+										<Link href={`/${project.author.username}#${project.id}`} key={key}>
+											<a className='grid__item'>
+												<h3 className='grid__item__name'>{project.name}</h3>
+												<img
+													className='grid__item__img'
+													src={project.images[0]}
+													alt={`Couverture du projet ${project.name} par ${project.author
+														.name} ${project.author.family_name}`}
+												/>
+											</a>
+										</Link>
+									)
+								})}
+							</div>
+						</div>
+						<div className='home__content__users'>
+							<h2 className='title'>Les derniers utilisateurs inscrits</h2>
+							<div className='list'>
+								{users.map((user, key) => {
+									return (
+										<Link href={`/${user.username}`} key={key}>
+											<a className='list__user'>
+												{user.picture === 'custom' ? (
+													<img
+														className='list__user__picture'
+														src={user.c_picture}
+														alt={`Photo de profil de ${user.name} ${user.family_name}`}
+													/>
+												) : null}
+												{user.picture === 'facebook' ? (
+													<img
+														className='list__user__picture'
+														src={user.f_picture}
+														alt={`Photo de profil de ${user.name} ${user.family_name}`}
+													/>
+												) : null}
+												{user.picture === 'google' ? (
+													<img
+														className='list__user__picture'
+														src={user.g_picture}
+														alt={`Photo de profil de ${user.name} ${user.family_name}`}
+													/>
+												) : null}
+												{user.picture === 'none' ? (
+													<img
+														className='list__user__picture'
+														src='/img/userProfileImg.svg'
+														alt={`Photo de profil de ${user.name} ${user.family_name}`}
+													/>
+												) : null}
+												<div className='list__user__infos'>
+													<p className='name'>
+														{user.name} {user.family_name}
+													</p>
+													<p className='link'>Voir le portfolio</p>
+												</div>
+											</a>
+										</Link>
+									)
+								})}
+							</div>
+							<small className='creditsDesktop text-center color-grey'>
+								Samuel Loranger - 2020 © Tous droits réservés
+							</small>
 						</div>
 					</div>
-					<div className='home__content__users'>
-						<h2 className='title'>Les derniers utilisateurs inscrits</h2>
-						<div className='list'>
-							{users.map((user, key) => {
-								return (
-									<Link href={`/${user.username}`} key={key}>
-										<a className='list__user'>
-											{user.picture === 'custom' ? (
-												<img
-													className='list__user__picture'
-													src={user.c_picture}
-													alt={`Photo de profil de ${user.name} ${user.family_name}`}
-												/>
-											) : null}
-											{user.picture === 'facebook' ? (
-												<img
-													className='list__user__picture'
-													src={user.f_picture}
-													alt={`Photo de profil de ${user.name} ${user.family_name}`}
-												/>
-											) : null}
-											{user.picture === 'google' ? (
-												<img
-													className='list__user__picture'
-													src={user.g_picture}
-													alt={`Photo de profil de ${user.name} ${user.family_name}`}
-												/>
-											) : null}
-											{user.picture === 'none' ? (
-												<img
-													className='list__user__picture'
-													src='/img/userProfileImg.png'
-													alt={`Photo de profil de ${user.name} ${user.family_name}`}
-												/>
-											) : null}
-											<div className='list__user__infos'>
-												<p className='name'>
-													{user.name} {user.family_name}
-												</p>
-												<p className='link'>Voir le portfolio</p>
-											</div>
-										</a>
-									</Link>
-								)
-							})}
-						</div>
-						<small className='creditsDesktop text-center color-grey'>
-							Samuel Loranger - 2020 © Tous droits réservés
-						</small>
-					</div>
-				</div>
+				)}
 
 				<small className='creditsMobile text-center color-grey'>
 					Samuel Loranger - 2020 © Tous droits réservés
@@ -166,26 +206,26 @@ const index = ({ users, projects }: IProps) => {
 	)
 }
 
-index.getInitialProps = async () => {
-	const usersColl = await appFirestore().collection('users').orderBy('dateCreated', 'asc').get()
+// index.getInitialProps = async () => {
+// 	const usersColl = await appFirestore().collection('users').orderBy('dateCreated', 'asc').get()
 
-	const users = take(usersColl.docs, 8).map((user) => {
-		return user.data() as IUser
-	})
+// 	const users = take(usersColl.docs, 8).map((user) => {
+// 		return user.data() as IUser
+// 	})
 
-	const projectsCollections: IProject[] = []
-	for (const user of usersColl.docs) {
-		const userProjectsColl = await user.ref.collection('projects').get()
-		userProjectsColl.docs.map((project) => {
-			projectsCollections.push({
-				id: Number(project.id),
-				...project.data(),
-				author: user.data()
-			} as IProject)
-		})
-	}
+// 	const projectsCollections: IProject[] = []
+// 	for (const user of usersColl.docs) {
+// 		const userProjectsColl = await user.ref.collection('projects').get()
+// 		userProjectsColl.docs.map((project) => {
+// 			projectsCollections.push({
+// 				id: Number(project.id),
+// 				...project.data(),
+// 				author: user.data()
+// 			} as IProject)
+// 		})
+// 	}
 
-	return { users: users, projects: projectsCollections }
-}
+// 	return { users: users, projects: projectsCollections }
+// }
 
 export default index

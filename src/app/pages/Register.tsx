@@ -35,7 +35,8 @@ const register = ({ query }) => {
 		family_name: '',
 		email: '',
 		picture: 'none',
-		dateCreated: new Date().toString()
+		dateCreated: new Date().toString(),
+		accountType: 'custom'
 	})
 	const [ usernameValid, setUsernameValid ] = useState<boolean>(true)
 	const [ emailValid, setEmailValid ] = useState<boolean>(true)
